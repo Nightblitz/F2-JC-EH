@@ -1,17 +1,13 @@
 ﻿using nClam;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace FileFinder_YJCFINAL
 {
@@ -42,17 +38,18 @@ namespace FileFinder_YJCFINAL
         //Main upload var
         private string extensionMain;
 
-        private string fromRootToPhotosMain = @"C:\Users\User\Documents\Visual Studio 2015\Projects\FileFinder-YJCFINAL\FileFinder-YJCFINAL\Images\UploadedPhotos\Main\";
-        private string photoFolderMain;
-        private string randomPicIDMain;
+        private string fromRootToPhotosMain = @"~/Images/UploadedPhotos/Main/";
+        //private string photoFolderMain;
+        //private string randomPicIDMain;
         private string uniqueFileNameMain;
+        
 
         //Secondary upload var
         private string extensionSec;
 
-        private string fromRootToPhotosSec = @"C:\Users\User\Documents\Visual Studio 2015\Projects\FileFinder-YJCFINAL\FileFinder-YJCFINAL\Images\UploadedPhotos\Secondary\";
-        private string photoFolderSec;
-        private string randomPicIDSec;
+        private string fromRootToPhotosSec = @"~/Images/UploadedPhotos/Secondary/";
+        //private string photoFolderSec;
+        //private string randomPicIDSec;
         private string uniqueFileNameSec;
 
         //FileuploadMain database var
@@ -68,19 +65,19 @@ namespace FileFinder_YJCFINAL
         private int fileUploadSecondarySecretID;
         private int fileUploadSecondaryID;
 
-        //FileUpload Video
-        private Byte[] buffer;
+        ////FileUpload Video
+        //private Byte[] buffer;
 
-        private string randomVidID;
-        private string fromRootToVideo = @"C:\Users\User\Documents\Visual Studio 2015\Projects\FileFinder-YJCFINAL\FileFinder-YJCFINAL\Videos\";
-        private string videoFolder;
-        private string uniquefileNameVideo;
-        private string extensionVid;
+        //private string randomVidID;
+        //private string fromRootToVideo = @"C:\Users\User\Documents\Visual Studio 2015\Projects\FileFinder-YJCFINAL\FileFinder-YJCFINAL\Videos\";
+        //private string videoFolder;
+        //private string uniquefileNameVideo;
+        //private string extensionVid;
 
-        //FileUploadVid
-        private string filesizeVid;
+        ////FileUploadVid
+        //private string filesizeVid;
 
-        private string medianameVid;
+        //private string medianameVid;
 
         //Temp
         private string userid = "123";
@@ -102,32 +99,32 @@ namespace FileFinder_YJCFINAL
             //}
 
             //Random file name generate for Main
-            if (ViewState["StoredIdMain"] == null)
-            {
-                randomPicIDMain = Cryptography.GetRandomString();
-            }
-            else
-            {
-                randomPicIDMain = (string)ViewState["StoredIdMain"];
-            }
-            //Random file name generate for Sec
-            if (ViewState["StoredIdSec"] == null)
-            {
-                randomPicIDSec = Cryptography.GetRandomString();
-            }
-            else
-            {
-                randomPicIDSec = (string)ViewState["StoredIdSec"];
-            }
-            //Random file name generate for Video
-            if (ViewState["StoredIdVid"] == null)
-            {
-                randomVidID = Cryptography.GetRandomString();
-            }
-            else
-            {
-                randomVidID = (string)ViewState["StoredIdVid"];
-            }
+            //if (ViewState["StoredIdMain"] == null)
+            //{
+            //    randomPicIDMain = Cryptography.GetRandomString();
+            //}
+            //else
+            //{
+            //    randomPicIDMain = (string)ViewState["StoredIdMain"];
+            //}
+            ////Random file name generate for Sec
+            //if (ViewState["StoredIdSec"] == null)
+            //{
+            //    randomPicIDSec = Cryptography.GetRandomString();
+            //}
+            //else
+            //{
+            //    randomPicIDSec = (string)ViewState["StoredIdSec"];
+            //}
+            ////Random file name generate for Video
+            //if (ViewState["StoredIdVid"] == null)
+            //{
+            //    randomVidID = Cryptography.GetRandomString();
+            //}
+            //else
+            //{
+            //    randomVidID = (string)ViewState["StoredIdVid"];
+            //}
 
             using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
             {
@@ -180,10 +177,10 @@ namespace FileFinder_YJCFINAL
 
             extensionMain = Path.GetExtension(FileUploadMain.FileName);
             extensionSec = Path.GetExtension(FileUploadMain.FileName);
-            extensionVid = Path.GetExtension(FileUploadMain.FileName);
+            //extensionVid = Path.GetExtension(FileUploadMain.FileName);
             ViewState["extensionMain"] = extensionMain;
             ViewState["extensionSec"] = extensionSec;
-            ViewState["extensionVid"] = extensionVid;
+            //ViewState["extensionVid"] = extensionVid;
             if (FileUploadMain.HasFile)
             {
                 try
@@ -192,23 +189,23 @@ namespace FileFinder_YJCFINAL
                     {
                         if (FileUploadMain.PostedFile.ContentLength < 1048576)
                         {
-                            photoFolderMain = Path.Combine(fromRootToPhotosMain, randomPicIDMain);
-                            ViewState["StoredIdMain"] = randomPicIDMain;
+                            //photoFolderMain = Path.Combine(fromRootToPhotosMain, randomPicIDMain);
+                            //ViewState["StoredIdMain"] = randomPicIDMain;
 
-                            photoFolderSec = Path.Combine(fromRootToPhotosSec, randomPicIDSec);
-                            ViewState["StoredIdSec"] = randomPicIDSec;
+                            //photoFolderSec = Path.Combine(fromRootToPhotosSec, randomPicIDSec);
+                            //ViewState["StoredIdSec"] = randomPicIDSec;
                             //Main Create Dir
-                            if (!Directory.Exists(photoFolderMain))
-                            {
-                                Directory.CreateDirectory(photoFolderMain);
-                            }
-                            //Sec Create Dir
-                            if (!Directory.Exists(photoFolderSec))
-                            {
-                                Directory.CreateDirectory(photoFolderSec);
-                            }
-                            ViewState["PhotoFolderMain"] = photoFolderMain;
-                            ViewState["PhotoFolderSec"] = photoFolderSec;
+                            //if (!Directory.Exists(photoFolderMain))
+                            //{
+                            //    Directory.CreateDirectory(photoFolderMain);
+                            //}
+                            ////Sec Create Dir
+                            //if (!Directory.Exists(photoFolderSec))
+                            //{
+                            //    Directory.CreateDirectory(photoFolderSec);
+                            //}
+                            //ViewState["PhotoFolderMain"] = photoFolderMain;
+                            //ViewState["PhotoFolderSec"] = photoFolderSec;
                             uniqueFileNameMain = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
                             ViewState["uniqueFileNameMain"] = uniqueFileNameMain;
 
@@ -237,18 +234,18 @@ namespace FileFinder_YJCFINAL
                             //Embedding secretText into ImageMain
                             Stream strm = FileUploadMain.PostedFile.InputStream;
                             Bitmap WatermarkedImageMain = (Bitmap)System.Drawing.Image.FromStream(strm);
+
                             secretTextMain = Cryptography.GetRandomString();
                             secretTextKeyMain = Cryptography.GetRandomString();
                             encrytedSecretTextMain = EncryptStringAesIntoImage(secretTextMain, secretTextKeyMain);
                             WatermarkedImageMain = Cryptography.embedText(encrytedSecretTextMain, WatermarkedImageMain);
-                            WatermarkedImageMain.Save(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
-
+                            WatermarkedImageMain.Save(Server.MapPath(fromRootToPhotosMain + uniqueFileNameMain + extensionMain));
+                            
                             ViewState["secretTextKeyMain"] = secretTextKeyMain;
                             ViewState["encrytedSecretTextMain"] = encrytedSecretTextMain;
 
                             var clam = new ClamClient("localhost", 3310);
-                            var scanResult = clam.ScanFileOnServer(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
-
+                            var scanResult = clam.ScanFileOnServer(Server.MapPath(fromRootToPhotosMain + uniqueFileNameMain + extensionMain));
                             switch (scanResult.Result)
                             {
                                 case ClamScanResults.Clean:
@@ -257,18 +254,18 @@ namespace FileFinder_YJCFINAL
                                     DisplayMainUploadedPhotos(imageToByteArray(WatermarkedImageMain));
                                     DisplaySecondaryUploadedPhotos();
                                     ImgSecDisplayPanel.Visible = true;
-
+                                    File.Delete(Server.MapPath(fromRootToPhotosMain + uniqueFileNameMain + extensionMain));
                                     break;
 
                                 case ClamScanResults.VirusDetected:
                                     StatusLabelMain.Text = "Upload status: Virus Found!!!!!";
-                                    File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
+                                    File.Delete(Server.MapPath(fromRootToPhotosMain+ uniqueFileNameMain + extensionMain));
                                     StatusLabelMain.CssClass = "label label-danger";
                                     break;
 
                                 case ClamScanResults.Error:
                                     StatusLabelMain.Text = scanResult.RawResult;
-                                    File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
+                                    File.Delete(Server.MapPath(fromRootToPhotosMain + uniqueFileNameMain + extensionMain));
                                     StatusLabelMain.CssClass = "label label-danger";
                                     break;
                             }
@@ -279,58 +276,58 @@ namespace FileFinder_YJCFINAL
                             StatusLabelMain.CssClass = "label label-danger";
                         }
                     }
-                    else if (FileUploadMain.PostedFile.ContentType == "video/mp4")
-                    {
-                        if (FileUploadMain.PostedFile.ContentLength < 52428800)
-                        {
-                            ViewState["StoredIdVid"] = randomVidID;
-                            videoFolder = Path.Combine(fromRootToVideo, randomVidID);
+                    //else if (FileUploadMain.PostedFile.ContentType == "video/mp4")
+                    //{
+                    //    if (FileUploadMain.PostedFile.ContentLength < 52428800)
+                    //    {
+                    //        ViewState["StoredIdVid"] = randomVidID;
+                    //        videoFolder = Path.Combine(fromRootToVideo, randomVidID);
 
-                            //Vid Create Dir
-                            if (!Directory.Exists(videoFolder))
-                            {
-                                Directory.CreateDirectory(videoFolder);
-                            }
-                            ViewState["videoFolder"] = videoFolder;
-                            uniquefileNameVideo = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
-                            ViewState["uniquefileNameVideo"] = uniquefileNameVideo;
-                            FileUploadMain.SaveAs(Path.Combine(videoFolder, uniquefileNameVideo + extensionVid));
+                    //        //Vid Create Dir
+                    //        if (!Directory.Exists(videoFolder))
+                    //        {
+                    //            Directory.CreateDirectory(videoFolder);
+                    //        }
+                    //        ViewState["videoFolder"] = videoFolder;
+                    //        uniquefileNameVideo = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
+                    //        ViewState["uniquefileNameVideo"] = uniquefileNameVideo;
+                    //        FileUploadMain.SaveAs(Path.Combine(videoFolder, uniquefileNameVideo + extensionVid));
 
-                            var clam = new ClamClient("localhost", 3310);
-                            var scanResult = clam.ScanFileOnServer(Path.Combine(videoFolder, uniquefileNameVideo + extensionVid));
+                    //        var clam = new ClamClient("localhost", 3310);
+                    //        var scanResult = clam.ScanFileOnServer(Path.Combine(videoFolder, uniquefileNameVideo + extensionVid));
 
-                            switch (scanResult.Result)
-                            {
-                                case ClamScanResults.Clean:
+                    //        switch (scanResult.Result)
+                    //        {
+                    //            case ClamScanResults.Clean:
 
-                                    //VidZone.Attributes.Add("src", "../Videos/" + randomVidID + "/" + uniquefileNameVideo + extensionVid);
-                                    //VidZone.Src =  + randomVidID + "/" + uniquefileNameVideo + extensionVid;
-                                    //VidZone.Src = "http://localhost:2962/Videos/"+ randomVidID +"/"+uniquefileNameVideo + extensionVid;
+                    //                //VidZone.Attributes.Add("src", "../Videos/" + randomVidID + "/" + uniquefileNameVideo + extensionVid);
+                    //                //VidZone.Src =  + randomVidID + "/" + uniquefileNameVideo + extensionVid;
+                    //                //VidZone.Src = "http://localhost:2962/Videos/"+ randomVidID +"/"+uniquefileNameVideo + extensionVid;
 
-                                    StatusLabelMain.CssClass = "label label-success";
-                                    StatusLabelMain.Text = "Upload status: File uploaded!";
+                    //                StatusLabelMain.CssClass = "label label-success";
+                    //                StatusLabelMain.Text = "Upload status: File uploaded!";
 
-                                    break;
+                    //                break;
 
-                                case ClamScanResults.VirusDetected:
-                                    StatusLabelMain.Text = "Upload status: Virus Found!!!!!";
-                                    File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
-                                    StatusLabelMain.CssClass = "label label-danger";
-                                    break;
+                    //            case ClamScanResults.VirusDetected:
+                    //                StatusLabelMain.Text = "Upload status: Virus Found!!!!!";
+                    //                //File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
+                    //                StatusLabelMain.CssClass = "label label-danger";
+                    //                break;
 
-                                case ClamScanResults.Error:
-                                    StatusLabelMain.Text = scanResult.RawResult;
-                                    File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
-                                    StatusLabelMain.CssClass = "label label-danger";
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            StatusLabelMain.Text = "Upload status: Video Files have to be less than 50 MB!";
-                            StatusLabelMain.CssClass = "label label-danger";
-                        }
-                    }
+                    //            case ClamScanResults.Error:
+                    //                StatusLabelMain.Text = scanResult.RawResult;
+                    //                //File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
+                    //                StatusLabelMain.CssClass = "label label-danger";
+                    //                break;
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        StatusLabelMain.Text = "Upload status: Video Files have to be less than 50 MB!";
+                    //        StatusLabelMain.CssClass = "label label-danger";
+                    //    }
+                //}
                     else
                     {
                         StatusLabelMain.Text = "Upload status: File is not a supported file format!!!";
@@ -357,6 +354,7 @@ namespace FileFinder_YJCFINAL
             MainUploadedImage.Visible = true;
             MainUploadedImage.Width = 350;
             MainUploadedImage.Height = 250;
+            ViewState["ImgMain"] = bytes;
         }
 
         public byte[] imageToByteArray(System.Drawing.Image imageIn)
@@ -368,7 +366,7 @@ namespace FileFinder_YJCFINAL
 
         public void DisplaySecondaryUploadedPhotos()
         {
-            string watermarkText = "© F2-ASPJ";
+            string watermarkText = "© FileFinder";
 
             //Get the file name.
             string fileName = Path.GetFileNameWithoutExtension(FileUploadMain.PostedFile.FileName) + ".png";
@@ -400,6 +398,7 @@ namespace FileFinder_YJCFINAL
                     encrytedSecretTextSec = EncryptStringAesIntoImage(secretTextSec, secretTextKeySec);
                     WatermarkedImageSec = Cryptography.embedText(encrytedSecretTextSec, WatermarkedImageSec);
 
+                    
                     ViewState["secretTextKeySec"] = secretTextKeySec;
                     ViewState["encrytedSecretTextSec"] = encrytedSecretTextSec;
 
@@ -408,10 +407,10 @@ namespace FileFinder_YJCFINAL
                         //Save the Watermarked image to the MemoryStream.
                         WatermarkedImageSec.Save(memoryStream, ImageFormat.Png);
                         //Save image
-                        uniqueFileNameSec = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
-                        ViewState["uniqueFileNameSec"] = uniqueFileNameSec;
-                        string SecTargetPath = Path.Combine(photoFolderSec, uniqueFileNameSec + extensionSec);
-                        WatermarkedImageSec.Save(SecTargetPath, WatermarkedImageSec.RawFormat);
+                        //uniqueFileNameSec = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
+                        //ViewState["uniqueFileNameSec"] = uniqueFileNameSec;
+                        //string SecTargetPath = Server.MapPath(fromRootToPhotosSec+ uniqueFileNameSec + extensionSec);
+                        //WatermarkedImageSec.Save(SecTargetPath, WatermarkedImageSec.RawFormat);
 
                         //Displaying of image
                         Byte[] bytes = memoryStream.ToArray();
@@ -422,6 +421,8 @@ namespace FileFinder_YJCFINAL
                         SecondaryUploadedImage.Width = 350;
                         SecondaryUploadedImage.Height = 300;
                         StatusLabelMain.Visible = true;
+
+                        ViewState["ImgSec"] = bytes;
                     }
                 }
             }
@@ -429,16 +430,16 @@ namespace FileFinder_YJCFINAL
 
         protected void btnDeleteMain_Click(object sender, EventArgs e)
         {
-            photoFolderMain = (string)ViewState["PhotoFolderMain"];
-            photoFolderSec = (string)ViewState["PhotoFolderSec"];
+            //photoFolderMain = (string)ViewState["PhotoFolderMain"];
+            //photoFolderSec = (string)ViewState["PhotoFolderSec"];
             uniqueFileNameMain = (string)ViewState["uniqueFileNameMain"];
             uniqueFileNameSec = (string)ViewState["uniqueFileNameSec"];
             extensionMain = (string)ViewState["extensionMain"];
             extensionSec = (string)ViewState["extensionSec"];
-            string fileToDeleteMain = Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain);
-            string fileToDeleteSec = Path.Combine(photoFolderSec, uniqueFileNameSec + extensionSec);
-            File.Delete(fileToDeleteMain);
-            File.Delete(fileToDeleteSec);
+            //string fileToDeleteMain = Path.Combine(fromRootToPhotosMain, uniqueFileNameMain + extensionMain);
+            //string fileToDeleteSec = Path.Combine(fromRootToPhotosSec, uniqueFileNameSec + extensionSec);
+            //File.Delete(fileToDeleteMain);
+            //File.Delete(fileToDeleteSec);
             MainUploadedImage.ImageUrl = null;
             MainUploadedImage.Visible = false;
             SecondaryUploadedImage.ImageUrl = null;
@@ -491,8 +492,8 @@ namespace FileFinder_YJCFINAL
 
         protected void ShareBtn_Click(object sender, EventArgs e)
         {
-            photoFolderMain = (string)ViewState["PhotoFolderMain"];
-            photoFolderSec = (string)ViewState["PhotoFolderSec"];
+            //photoFolderMain = (string)ViewState["PhotoFolderMain"];
+            //photoFolderSec = (string)ViewState["PhotoFolderSec"];
 
             uniqueFileNameMain = (string)ViewState["uniqueFileNameMain"];
             uniqueFileNameSec = (string)ViewState["uniqueFileNameSec"];
@@ -511,18 +512,20 @@ namespace FileFinder_YJCFINAL
             encrytedSecretTextMain = (string)ViewState["encrytedSecretTextMain"];
             encrytedSecretTextSec = (string)ViewState["encrytedSecretTextSec"];
 
-            string pathToCheckMain = Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain);
-            string pathToCheckSec = Path.Combine(photoFolderSec, uniqueFileNameMain + extensionSec);
+            byte[] ImgMain = (byte[])ViewState["ImgMain"];
+            byte[] ImgSec = (byte[])ViewState["ImgSec"];
+            //string pathToCheckMain = Path.Combine(Server.MapPath(fromRootToPhotosMain), uniqueFileNameMain + extensionMain);
+            //string pathToCheckSec = Path.Combine(Server.MapPath(fromRootToPhotosSec), uniqueFileNameMain + extensionSec);
 
-            if (File.Exists(pathToCheckMain))
+            if (ImgMain != null && ImgSec != null) 
             {
                 using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
                 {
                     SqlDataReader reader;
                     SqlCommand cmd = new SqlCommand();
-                    cmd.CommandText = "INSERT INTO [dbo].[FileUpload] ([FileType],[FilePath],[FileSize],[MediaName],[UserID]) VALUES (@FileType,@FilePath,@FileSize,@MediaName,@UserID);";
+                    cmd.CommandText = "INSERT INTO [dbo].[FileUpload] ([FileType],[ImgData],[FileSize],[MediaName],[UserID]) VALUES (@FileType,@ImgData,@FileSize,@MediaName,@UserID);";
                     cmd.Parameters.Add("@FileType", SqlDbType.NVarChar).Value = extensionMain;
-                    cmd.Parameters.Add("@FilePath", SqlDbType.NVarChar).Value = Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain);
+                    cmd.Parameters.Add("@ImgData", SqlDbType.VarBinary).Value = ImgMain;
                     cmd.Parameters.Add("@FileSize", SqlDbType.NVarChar).Value = filesizeMain;
                     cmd.Parameters.Add("@MediaName", SqlDbType.NVarChar).Value = medianameMain;
                     cmd.Parameters.Add("@UserID", SqlDbType.NVarChar).Value = userid;
@@ -541,9 +544,9 @@ namespace FileFinder_YJCFINAL
                     connection.Close();
 
                     SqlCommand cmd3 = new SqlCommand();
-                    cmd3.CommandText = "INSERT INTO [dbo].[FileUploadSecondary] ([FileType],[FilePath],[FileSize],[UserID]) VALUES (@FileType,@FilePath,@FileSize,@UserID);";
+                    cmd3.CommandText = "INSERT INTO [dbo].[FileUploadSecondary] ([FileType],[ImgData],[FileSize],[UserID]) VALUES (@FileType,@ImgData,@FileSize,@UserID);";
                     cmd3.Parameters.Add("@FileType", SqlDbType.NVarChar).Value = extensionSec;
-                    cmd3.Parameters.Add("@FilePath", SqlDbType.NVarChar).Value = Path.Combine(photoFolderSec, uniqueFileNameSec + extensionSec);
+                    cmd3.Parameters.Add("@ImgData", SqlDbType.VarBinary).Value = ImgSec;
                     cmd3.Parameters.Add("@FileSize", SqlDbType.NVarChar).Value = filesizeSec;
                     cmd3.Parameters.Add("@UserID", SqlDbType.NVarChar).Value = userid;
                     cmd3.Connection = connection;
@@ -589,8 +592,9 @@ namespace FileFinder_YJCFINAL
                     connection.Close();
 
                     SqlCommand cmd7 = new SqlCommand();
-                    cmd7.CommandText = "SELECT [FileUploadID] FROM [dbo].[FileUpload] WHERE [FilePath] = @FilePath ;";
-                    cmd7.Parameters.Add("@FilePath", SqlDbType.NVarChar).Value = Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain);
+                    cmd7.CommandText = "SELECT [FileUploadID] FROM [dbo].[FileUpload] WHERE [MediaName] = @MediaName AND [ImgData] = @ImgData;";
+                    cmd7.Parameters.Add("@MediaName", SqlDbType.NVarChar).Value = medianameMain;
+                    cmd7.Parameters.Add("@ImgData", SqlDbType.VarBinary).Value = ImgMain;
                     cmd7.Connection = connection;
                     connection.Open();
                     cmd7.ExecuteNonQuery();
@@ -603,8 +607,8 @@ namespace FileFinder_YJCFINAL
                     connection.Close();
 
                     SqlCommand cmd8 = new SqlCommand();
-                    cmd8.CommandText = "SELECT [FileUploadSecondaryID] FROM [dbo].[FileUploadSecondary] WHERE [FilePath] = @FilePath ;";
-                    cmd8.Parameters.Add("@FilePath", SqlDbType.NVarChar).Value = Path.Combine(photoFolderSec, uniqueFileNameSec + extensionSec);
+                    cmd8.CommandText = "SELECT [FileUploadSecondaryID] FROM [dbo].[FileUploadSecondary] WHERE [ImgData] = @ImgData;";
+                    cmd8.Parameters.Add("@ImgData", SqlDbType.VarBinary).Value = ImgSec;
                     cmd8.Connection = connection;
                     connection.Open();
                     cmd8.ExecuteNonQuery();

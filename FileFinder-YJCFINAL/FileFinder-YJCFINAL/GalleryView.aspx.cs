@@ -20,7 +20,7 @@ namespace FileFinder_YJCFINAL
         private static byte[] _salt = Encoding.ASCII.GetBytes("jasdh7834y8hfeur73rsharks214");
         //temp
         private string userid = "123";
-        private string gid = "1";
+        private string gid = "24";
 
         //Gallery Database var
         private string title;
@@ -28,15 +28,16 @@ namespace FileFinder_YJCFINAL
         private string desc;
 
         //UploadedImage [Main]
-        private byte[] imageMain;
+        private byte[] ImgMain;
 
         //UploadedImage Sec
-        private byte[] imageSec;
+        private byte[] ImgSec;
 
         //FileUploadMain Database var
         private int fileuploadID;
         private string filetypeMain;
-        private string filepathMain;
+        //private string filepathMain;
+        
         private string filesizeMain;
         private string filenameMain;
         private int fileuploadsecretID;
@@ -46,11 +47,17 @@ namespace FileFinder_YJCFINAL
         //FileUploadSecondary Database  var
         private int fileuploadsecondaryID;
         private string filetypeSec;
-        private string filepathSec;
+        //private string filepathSec;
+        
         private int fileuploadsecondarysecretID;
         private string embeddedsecrettextSec;
         private string embeddedsecrettextkeySec;
         public string bg;
+
+        //Review Database
+        private string ReviewContent;
+        private string ReviewUserID;
+        private string ReviewTimeStamp;
 
 
 
@@ -79,7 +86,7 @@ namespace FileFinder_YJCFINAL
                 connection.Close();
 
                 SqlCommand cmd2 = new SqlCommand();
-                cmd2.CommandText = "SELECT [FileType],[FilePath],[FileSize],[MediaName],[FileUploadSecretID] FROM [dbo].[FileUpload] WHERE [FileUploadID]= @FileUploadID AND [UserID] = @UserID;";
+                cmd2.CommandText = "SELECT [ImgData],[FileType],[FileSize],[MediaName],[FileUploadSecretID] FROM [dbo].[FileUpload] WHERE [FileUploadID]= @FileUploadID AND [UserID] = @UserID;";
                 cmd2.Parameters.Add("@FileUploadID", SqlDbType.Int).Value = fileuploadID;
                 cmd2.Parameters.Add("@UserID", SqlDbType.NVarChar).Value = userid;
                 cmd2.Connection = connection;
@@ -89,8 +96,13 @@ namespace FileFinder_YJCFINAL
                 reader = cmd2.ExecuteReader();
                 while (reader.Read())
                 {
-                    filetypeMain = reader.GetString(0);
-                    filepathMain = reader.GetString(1);
+                    //Image
+                    long length = reader.GetBytes(0, 0, null, 0, 0);
+                    Byte[] buffer = new Byte[length];
+                    reader.GetBytes(0, 0, buffer, 0, (int)length);
+                    ImgMain = buffer;
+
+                    filetypeMain = reader.GetString(1);
                     filesizeMain = reader.GetString(2);
                     filenameMain = reader.GetString(3);
                     fileuploadsecretID = reader.GetInt32(4);
@@ -98,7 +110,7 @@ namespace FileFinder_YJCFINAL
                 connection.Close();
 
                 SqlCommand cmd3 = new SqlCommand();
-                cmd3.CommandText = "SELECT [FileType],[FilePath],[FileUploadSecondarySecretID] FROM [dbo].[FileUploadSecondary] WHERE [FileUploadSecondaryID]= @FileUploadSecondaryID AND [UserID] = @UserID;";
+                cmd3.CommandText = "SELECT [ImgData],[FileType],[FileUploadSecondarySecretID] FROM [dbo].[FileUploadSecondary] WHERE [FileUploadSecondaryID]= @FileUploadSecondaryID AND [UserID] = @UserID;";
                 cmd3.Parameters.Add("@FileUploadSecondaryID", SqlDbType.Int).Value = fileuploadsecondaryID;
                 cmd3.Parameters.Add("@UserID", SqlDbType.Int).Value = userid;
                 cmd3.Connection = connection;
@@ -108,8 +120,13 @@ namespace FileFinder_YJCFINAL
                 reader = cmd3.ExecuteReader();
                 while (reader.Read())
                 {
-                    filetypeSec = reader.GetString(0);
-                    filepathSec = reader.GetString(1);
+                    //Image
+                    long length = reader.GetBytes(0, 0, null, 0, 0);
+                    Byte[] buffer = new Byte[length];
+                    reader.GetBytes(0, 0, buffer, 0, (int)length);
+                    ImgSec = buffer;
+
+                    filetypeSec = reader.GetString(1);
                     fileuploadsecondarysecretID = reader.GetInt32(2);
                 }
                 connection.Close();
@@ -143,59 +160,154 @@ namespace FileFinder_YJCFINAL
                     embeddedsecrettextkeySec = reader.GetString(1);
                 }
                 connection.Close();
-            }
 
-            DesignTitleLabel.Text = title;
-            NameLabel.Text = "Blah Blah need to change";
-            Titlelabel2.Text = title;
-            PriceLabel.Text = "S$" + amount.ToString();
-            DescriptionLabel.Text = desc;
-            Label1.Text = title;
-            Label2.Text = filesizeMain + "KB";
 
-            //Image 
-            if (File.Exists(filepathMain) && File.Exists(filepathSec))
-            {
-                imageMain = File.ReadAllBytes(filepathMain);
-                imageSec = File.ReadAllBytes(filepathSec);
-                System.Drawing.Image picMain = byteArrayToImage(imageMain);
-                System.Drawing.Image picSec = byteArrayToImage(imageSec);
-                Bitmap bmpMain = new Bitmap(picMain);
-                Bitmap bmpSec = new Bitmap(picSec);
+                //Review Database
+                int noOfReview = 0;
+                List<int> ReviewIDList = new List<int>();
+                SqlCommand cmd6 = new SqlCommand();
+                cmd6.CommandText = "SELECT COUNT(*) FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
+                cmd6.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
+                cmd6.Connection = connection;
+                connection.Open();
+                cmd6.ExecuteNonQuery();
 
-                //Extraction of secret text
-                string ExtractedTextMain = Cryptography.extractText(bmpMain);
-                string ExtractedTextSec = Cryptography.extractText(bmpSec);
-
-                //Decrytion of secret text
-                string plainExtractedTextMain = DecryptImageAesIntoString(ExtractedTextMain, embeddedsecrettextkeyMain);
-                string plainExtractedTextSec = DecryptImageAesIntoString(ExtractedTextSec, embeddedsecrettextkeySec);
-                string originalPlainTextMain = DecryptImageAesIntoString(embeddedsecrettextMain, embeddedsecrettextkeyMain);
-                string originalPlainTextSec = DecryptImageAesIntoString(embeddedsecrettextSec, embeddedsecrettextkeySec);
-
-                if (originalPlainTextMain == plainExtractedTextMain && originalPlainTextSec == plainExtractedTextSec)
+                reader = cmd6.ExecuteReader();
+                while (reader.Read())
                 {
-                    //Displaying of sec Image
-                    //string blank = @"C:\Users\User\Source\Repos\F2\F2\Images\Blank.gif";
-                    using (MemoryStream ms = new MemoryStream())
+                    noOfReview = reader.GetInt32(0);
+                }
+                connection.Close();
+
+                SqlCommand cmd7 = new SqlCommand();
+                cmd7.CommandText = "SELECT [ReviewID] FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
+                cmd7.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
+                cmd7.Connection = connection;
+                connection.Open();
+                cmd7.ExecuteNonQuery();
+
+                reader = cmd7.ExecuteReader();
+                while (reader.Read())
+                {
+                    ReviewIDList.Add(reader.GetInt32(0));
+                }
+                connection.Close();
+
+                for (int i = 0; i < noOfReview; i++)
+                {
+                    int ReviewID = ReviewIDList[i];
+
+                    SqlCommand cmd8 = new SqlCommand();
+                    cmd8.CommandText = "SELECT [Content],[UserID],[TimeStamp] FROM [dbo].[Review] WHERE [GalleryID]= @GalleryID AND [ReviewID] = @ReviewID;";
+                    cmd8.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
+                    cmd8.Parameters.Add("@ReviewID", SqlDbType.Int).Value = ReviewID;
+                    cmd8.Connection = connection;
+                    connection.Open();
+                    cmd8.ExecuteNonQuery();
+
+                    reader = cmd8.ExecuteReader();
+                    while (reader.Read())
                     {
-                        //Graphics gra = Graphics.FromImage(bmpSec);
-                        //Bitmap blankImg = new Bitmap(blank);
-                        //blankImg = new Bitmap(blankImg, 1000, 1000);
-                        //blankImg.MakeTransparent();
-                        //gra.DrawImage(blankImg, new Point(0, 0));
+                        ReviewContent = reader.GetString(0);
+                        ReviewUserID = reader.GetString(1);
+                        ReviewTimeStamp = reader.GetString(2);
+                    }
+                    connection.Close();
+
+                    Panel panel = new Panel();
+                    panel.ID = "ReviewPanel" + i.ToString();//Remember must put the for loop int in here
+                    panel.HorizontalAlign = HorizontalAlign.Left;
+
+                    //Head of review 
+                    panel.Controls.Add(new LiteralControl("<div class='row'>"));
+                    panel.Controls.Add(new LiteralControl("<div class=col-sm-1>"));
+                    panel.Controls.Add(new LiteralControl("<div class='thumbnail'>"));
+                    var img = new HtmlGenericControl("img");
+                    img.Attributes.Add("class", "img-responsive user-photo");
+                    img.Attributes.Add("src", "http://placehold.it/64x64");
+                    panel.Controls.Add(img);
+                    panel.Controls.Add(new LiteralControl("</div>"));// <!--/thumbnail div-->
+                    panel.Controls.Add(new LiteralControl("</div>")); //<!--/col-sm-1 div-->
+
+                    //panel Body of review
+                    panel.Controls.Add(new LiteralControl("<div class='col-sm-6'>"));
+                    panel.Controls.Add(new LiteralControl("<div class='panel panel-default'>"));
+                    panel.Controls.Add(new LiteralControl("<div class='panel-heading'>"));
+                    HtmlGenericControl Label1 = new HtmlGenericControl("strong");
+                    //Label1.Attributes.Add("class", "media-heading");
+                    Label1.InnerText = "Monster";
+                    panel.Controls.Add(Label1);
+                    HtmlGenericControl Label2 = new HtmlGenericControl("span");
+                    Label2.InnerText = "posted "+ ReviewTimeStamp;
+                    Label2.Attributes.Add("class","text-muted");
+                    panel.Controls.Add(Label2);
+                    panel.Controls.Add(new LiteralControl("</div>"));// <!-- /panel-heading -->
+
+                    panel.Controls.Add(new LiteralControl("<div class='panel-body'>"));
+                    HtmlGenericControl Label3 = new HtmlGenericControl("label");
+                    Label3.InnerText = ReviewContent;
+                    panel.Controls.Add(Label3);
+
+                    panel.Controls.Add(new LiteralControl("</div>"));//<!--/panel body-->
+                    panel.Controls.Add(new LiteralControl("</div>"));//<!--/panel panel default-->
+                    panel.Controls.Add(new LiteralControl("</div>"));//<!--/col-sm-5-->
+                    panel.Controls.Add(new LiteralControl("</div>"));//<!--/row div-->
+
+                    PlaceHolderReview.Controls.Add(panel);
+                }
+
+                DesignTitleLabel.Text = title;
+                NameLabel.Text = "Blah Blah need to change";
+                Titlelabel2.Text = title;
+                PriceLabel.Text = "S$" + amount.ToString();
+                DescriptionLabel.Text = desc;
+                Label1.Text = title;
+                Label2.Text = filesizeMain + "KB";
+
+                //Image 
+                if (ImgMain!=null && ImgSec!=null)
+                {
+                    //imageMain = File.ReadAllBytes(filepathMain);
+                    //imageSec = File.ReadAllBytes(filepathSec);
+                    System.Drawing.Image picMain = byteArrayToImage(ImgMain);
+                    System.Drawing.Image picSec = byteArrayToImage(ImgSec);
+                    Bitmap bmpMain = new Bitmap(picMain);
+                    Bitmap bmpSec = new Bitmap(picSec);
+
+                    //Extraction of secret text
+                    string ExtractedTextMain = Cryptography.extractText(bmpMain);
+                    string ExtractedTextSec = Cryptography.extractText(bmpSec);
+
+                    //Decrytion of secret text
+                    string plainExtractedTextMain = DecryptImageAesIntoString(ExtractedTextMain, embeddedsecrettextkeyMain);
+                    string plainExtractedTextSec = DecryptImageAesIntoString(ExtractedTextSec, embeddedsecrettextkeySec);
+                    string originalPlainTextMain = DecryptImageAesIntoString(embeddedsecrettextMain, embeddedsecrettextkeyMain);
+                    string originalPlainTextSec = DecryptImageAesIntoString(embeddedsecrettextSec, embeddedsecrettextkeySec);
+
+                    if (originalPlainTextMain == plainExtractedTextMain && originalPlainTextSec == plainExtractedTextSec)
+                    {
+                        //Displaying of sec Image
+                        //string blank = @"C:\Users\User\Source\Repos\F2\F2\Images\Blank.gif";
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            //Graphics gra = Graphics.FromImage(bmpSec);
+                            //Bitmap blankImg = new Bitmap(blank);
+                            //blankImg = new Bitmap(blankImg, 1000, 1000);
+                            //blankImg.MakeTransparent();
+                            //gra.DrawImage(blankImg, new Point(0, 0));
 
 
-                        bmpSec.Save(ms, ImageFormat.Png);
-                        byte[] byteImageSec = ms.ToArray();
-                        string base64StringImageSec = Convert.ToBase64String(byteImageSec);
-                        SecImage.ImageUrl = "data:image/png;base64," + base64StringImageSec;
-                        //SecImage.Style["background:url"] = "data:image/png;base64," + base64StringImageSec;
-                        //SecImage.Style.Add("background-image", "" + returncolor + "");
+                            bmpSec.Save(ms, ImageFormat.Png);
+                            byte[] byteImageSec = ms.ToArray();
+                            string base64StringImageSec = Convert.ToBase64String(byteImageSec);
+                            SecImage.ImageUrl = "data:image/png;base64," + base64StringImageSec;
+                            //SecImage.Style["background:url"] = "data:image/png;base64," + base64StringImageSec;
+                            //SecImage.Style.Add("background-image", "" + returncolor + "");
+                        }
                     }
                 }
-            }
 
+            }
         }
         //Decryption for the secet text in image
         public static string DecryptImageAesIntoString(string cipherText, string sharedSecret)
@@ -279,170 +391,61 @@ namespace FileFinder_YJCFINAL
 
         protected void PostBtn_Click(object sender, EventArgs e)
         {
-            List<int> ReviewIDList = new List<int>();
+            Panel panel = new Panel();
+            panel.HorizontalAlign = HorizontalAlign.Left;
+
+            //Head of review 
+            panel.Controls.Add(new LiteralControl("<div class='row'>"));
+            panel.Controls.Add(new LiteralControl("<div class=col-sm-1>"));
+            panel.Controls.Add(new LiteralControl("<div class='thumbnail'>"));
+            var img = new HtmlGenericControl("img");
+            img.Attributes.Add("class", "img-responsive user-photo");
+            img.Attributes.Add("src", "http://placehold.it/64x64");
+            panel.Controls.Add(img);
+            panel.Controls.Add(new LiteralControl("</div>"));// <!--/thumbnail div-->
+            panel.Controls.Add(new LiteralControl("</div>")); //<!--/col-sm-1 div-->
+
+            //panel Body of review
+            panel.Controls.Add(new LiteralControl("<div class='col-sm-6'>"));
+            panel.Controls.Add(new LiteralControl("<div class='panel panel-default'>"));
+            panel.Controls.Add(new LiteralControl("<div class='panel-heading'>"));
+
+            HtmlGenericControl Label1 = new HtmlGenericControl("strong");
+            Label1.InnerText = "Monster";
+            panel.Controls.Add(Label1);
+
+            HtmlGenericControl Label2 = new HtmlGenericControl("span");
+            Label2.InnerText = "posted " + DateTime.Now.ToString();
+            Label2.Attributes.Add("class", "text-muted");
+            panel.Controls.Add(Label2);
+
+            panel.Controls.Add(new LiteralControl("</div>"));// <!-- /panel-heading -->
+
+            panel.Controls.Add(new LiteralControl("<div class='panel-body'>"));
+            HtmlGenericControl Label3 = new HtmlGenericControl("label");
+            Label3.InnerText = ReviewTextArea.Text;
+            panel.Controls.Add(Label3);
+
+            panel.Controls.Add(new LiteralControl("</div>"));//<!--/panel body-->
+            panel.Controls.Add(new LiteralControl("</div>"));//<!--/panel panel default-->
+            panel.Controls.Add(new LiteralControl("</div>"));//<!--/col-sm-5-->
+            panel.Controls.Add(new LiteralControl("</div>"));//<!--/row div-->
+
+            PlaceHolderReview.Controls.Add(panel);
             using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
             {
-                SqlDataReader reader;
                 SqlCommand cmd = new SqlCommand();
-                cmd.CommandText = "SELECT COUNT(*) FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
-                cmd.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
+                cmd.CommandText = "INSERT INTO [dbo].[Review] ([Content],[UserID],[TimeStamp],[GalleryID]) VALUES (@Content,@UserID,@TimeStamp,@GalleryID);";
+                cmd.Parameters.Add("@Content", SqlDbType.NVarChar).Value = ReviewTextArea.Text;
+                cmd.Parameters.Add("@UserID", SqlDbType.NVarChar).Value = userid;
+                cmd.Parameters.Add("@TimeStamp", SqlDbType.NVarChar).Value = DateTime.Now.ToString();
+                cmd.Parameters.Add("@GalleryID", SqlDbType.NVarChar).Value = gid;
                 cmd.Connection = connection;
                 connection.Open();
                 cmd.ExecuteNonQuery();
-
-                reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    noOfReview = reader.GetInt32(0);
-                }
                 connection.Close();
 
-                SqlCommand cmd2 = new SqlCommand();
-                cmd2.CommandText = "SELECT [ReviewID] FROM [dbo].[Review] [GalleryID] = @GalleryID;";
-                cmd2.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
-                cmd2.Connection = connection;
-                connection.Open();
-                cmd2.ExecuteNonQuery();
-
-                reader = cmd2.ExecuteReader();
-                while (reader.Read())
-                {
-                    ReviewIDList.Add(reader.GetInt32(0));
-                }
-                connection.Close();
-
-                for (int i = 0; i < noOfReview; i++)
-                {
-                    int ReviewID = ReviewIDList[i];
-
-                    SqlCommand cmd3 = new SqlCommand();
-                    cmd3.CommandText = "SELECT [Content],[UserID],[TimeStamp] FROM [dbo].[Gallery] WHERE [GalleryID]= @GalleryID AND [ReviewID] = @ReviewID;";
-                    cmd3.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
-                    cmd3.Parameters.Add("@ReviewID", SqlDbType.Int).Value = ReviewID;
-                    cmd3.Connection = connection;
-                    connection.Open();
-                    cmd3.ExecuteNonQuery();
-
-                    reader = cmd3.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        ReviewContent = reader.GetString(0);
-                        ReviewUserID = reader.GetInt32(1);
-                        ReviewTimeStamp = reader.GetString(2);
-                    }
-                    connection.Close();
-
-                    Panel panel = new Panel();
-                    panel.ID = "ReviewPanel" + i.ToString();//Remember must put the for loop int in here
-                    panel.HorizontalAlign = HorizontalAlign.Left;
-
-                    //Head of panel
-                    panel.Controls.Add(new LiteralControl("<div class='media'>"));
-                    panel.Controls.Add(new LiteralControl("<a class='pull-left' href='#'>"));
-                    //panel.Controls.Add(new LiteralControl("<div class='panel-heading'>"));
-                    var img = new HtmlGenericControl("img");
-                    img.Attributes.Add("class", "media-object");
-                    img.Attributes.Add("src", "http://placehold.it/64x64");
-                    panel.Controls.Add(img);
-                    panel.Controls.Add(new LiteralControl("</a>"));// pull-left <a>
-
-                    ////panel Body
-                    //panel.Controls.Add(new LiteralControl("<div class='panel-body'>"));
-                    //panel.Controls.Add(new LiteralControl("<div class='row'>"));
-
-                    ////Buttons
-                    //panel.Controls.Add(new LiteralControl("<div class='col-md-3'>"));
-
-                    ////Cancel Event button
-                    //panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    //Button b = new Button();
-                    //b.Text = "Remove Design";
-                    //b.CssClass = "btn btn-primary";
-                    //b.Click += new EventHandler(b_Click);
-                    //b.CommandArgument = GalleryID.ToString();
-                    //panel.Controls.Add(b);
-                    //panel.Controls.Add(new LiteralControl("</div>"));//row div
-
-                    ////View Details Button
-                    //panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    //Button b2 = new Button();
-                    //b2.Text = "Edit Details";
-                    //b2.CssClass = "btn btn-primary";
-                    ////b2.Click += new EventHandler(viewdetails_click);
-                    ////b2.CommandArgument = eventId.ToString();
-                    //panel.Controls.Add(b2);
-                    //panel.Controls.Add(new LiteralControl("</div>"));//row div
-
-                    ////View Details Button
-                    ////panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    ////Button b2 = new Button();
-                    ////b2.Text = "View Details";
-                    ////b2.CssClass = "btn btn-primary";
-                    ////b2.Click += new EventHandler(viewdetails_click);
-                    ////b2.CommandArgument = eventId.ToString();
-                    ////panel.Controls.Add(b2);
-                    ////panel.Controls.Add(new LiteralControl("</div>"));//row div
-                    //panel.Controls.Add(new LiteralControl("</div>"));//col-md-3 div
-
-                    //panel.Controls.Add(new LiteralControl("<div class='col-md-9'>"));
-
-                    ////Design Name
-                    //panel.Controls.Add(new LiteralControl("<div class='row'>"));
-                    //panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    //HtmlGenericControl label1 = new HtmlGenericControl("label");
-                    //label1.Attributes.Add("class", "col-lg-2 control-label");
-                    //label1.InnerText = "Design Name:";
-                    //panel.Controls.Add(label1);
-                    //label1.Controls.Add(new LiteralControl("</label>"));
-                    //Label l = new Label();
-                    //l.CssClass = "col-lg-10 control-label";
-                    //l.Text = title;
-                    //panel.Controls.Add(l);
-                    //panel.Controls.Add(new LiteralControl("</div>"));//form group div
-                    //panel.Controls.Add(new LiteralControl("</div>"));//row div
-
-                    ////Cost
-                    //panel.Controls.Add(new LiteralControl("<div class='row'>"));
-                    //panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    //HtmlGenericControl label2 = new HtmlGenericControl("label");
-                    //label2.Attributes.Add("class", "col-lg-2 control-label");
-                    //label2.InnerText = "Cost:";
-                    //label2.Controls.Add(new LiteralControl("</label>"));
-                    //panel.Controls.Add(label2);
-                    //Label l2 = new Label();
-                    //l2.CssClass = "col-lg-10 control-label";
-                    //l2.Text = "S$" + amount.ToString() + ".00";
-                    //panel.Controls.Add(l2);
-                    //panel.Controls.Add(new LiteralControl("</div>"));//form group div
-                    //panel.Controls.Add(new LiteralControl("</div>"));//row div
-
-                    ////Description
-                    //panel.Controls.Add(new LiteralControl("<div class='row'>"));
-                    //panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    //HtmlGenericControl label3 = new HtmlGenericControl("label");
-                    //label3.Attributes.Add("class", "col-lg-2 control-label");
-                    //label3.InnerText = "Description:";
-                    //label3.Controls.Add(new LiteralControl("</label>"));
-                    //panel.Controls.Add(label3);
-                    //Label l3 = new Label();
-                    //l3.CssClass = "col-lg-10 control-label";
-                    //l3.Text = desc;
-                    //panel.Controls.Add(l3);
-                    //panel.Controls.Add(new LiteralControl("</div>"));//form group div
-                    //panel.Controls.Add(new LiteralControl("</div>"));//row div
-
-                    //panel.Controls.Add(new LiteralControl("</div>"));//col-md-9 div
-
-                    //panel.Controls.Add(new LiteralControl("<div class='col-md-4'>"));
-
-                    //panel.Controls.Add(new LiteralControl("</div>"));//col-md-2 div
-
-                    //panel.Controls.Add(new LiteralControl("</div>"));//row div
-                    //panel.Controls.Add(new LiteralControl("</div>"));//panel body div
-                    //panel.Controls.Add(new LiteralControl("</div>"));//pull left <a>
-                    panel.Controls.Add(new LiteralControl("</div>"));//media div
-                    PlaceHolderReview.Controls.Add(panel);
-                }
+            }
         }
     }
 }

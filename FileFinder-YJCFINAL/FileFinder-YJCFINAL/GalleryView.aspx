@@ -67,7 +67,7 @@
                 
                 <!-- Comment -->
                 <asp:PlaceHolder ID="PlaceHolderReview" runat="server"></asp:PlaceHolder>
-                <div class="media">
+                <%--<div class="media">
                     <a class="pull-left" href="#">
                         <img class="media-object" src="http://placehold.it/64x64" alt="">
                     </a>
@@ -103,7 +103,7 @@
                         </div>
                         <!-- End Nested Comment -->
                     </div>
-                </div>
+                </div>--%>
             </div>
 
             <!-- Blog Sidebar Widgets Column -->

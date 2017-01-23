@@ -257,79 +257,51 @@ namespace FileFinder_YJCFINAL
                 }
                 connection.Close();
 
+                
+
                 SqlCommand cmd4 = new SqlCommand();
-                cmd4.CommandText = "SELECT [FilePath] FROM [dbo].[FileUpload] WHERE [FileUploadID]= @FileUploadID;";
+                cmd4.CommandText = "DELETE FROM [dbo].[FileUpload] WHERE [FileUploadID] = @FileUploadID AND [UserID] = @UserID;";
                 cmd4.Parameters.AddWithValue("FileUploadID", fileuploadID);
+                cmd4.Parameters.AddWithValue("UserID", userid);
                 cmd4.Connection = connection;
                 connection.Open();
                 cmd4.ExecuteNonQuery();
-
-                reader = cmd4.ExecuteReader();
-                while (reader.Read())
-                {
-                    filepathMain = reader.GetString(0);
-                }
                 connection.Close();
 
                 SqlCommand cmd5 = new SqlCommand();
-                cmd5.CommandText = "SELECT [FilePath] FROM [dbo].[FileUploadSecondary] WHERE [FileUploadSecondaryID]= @FileUploadSecondaryID;";
+                cmd5.CommandText = "DELETE FROM [dbo].[FileUploadSecondary] WHERE [FileUploadSecondaryID] = @FileUploadSecondaryID AND [UserID] = @UserID;";
                 cmd5.Parameters.AddWithValue("FileUploadSecondaryID", fileuploadsecondaryID);
+                cmd5.Parameters.AddWithValue("UserID", userid);
                 cmd5.Connection = connection;
                 connection.Open();
                 cmd5.ExecuteNonQuery();
-
-                reader = cmd5.ExecuteReader();
-                while (reader.Read())
-                {
-                    filepathSec = reader.GetString(0);
-                }
                 connection.Close();
 
-                File.Delete(filepathMain);
-                File.Delete(filepathSec);
-
                 SqlCommand cmd6 = new SqlCommand();
-                cmd6.CommandText = "DELETE FROM [dbo].[FileUpload] WHERE [FileUploadID] = @FileUploadID AND [UserID] = @UserID;";
-                cmd6.Parameters.AddWithValue("FileUploadID", fileuploadID);
-                cmd6.Parameters.AddWithValue("UserID", userid);
+                cmd6.CommandText = "DELETE FROM [dbo].[FileUploadSecret] WHERE [FileUploadSecretID] = @FileUploadSecretID;";
+                cmd6.Parameters.AddWithValue("FileUploadSecretID", fileuploadsecretID);
                 cmd6.Connection = connection;
                 connection.Open();
                 cmd6.ExecuteNonQuery();
                 connection.Close();
 
                 SqlCommand cmd7 = new SqlCommand();
-                cmd7.CommandText = "DELETE FROM [dbo].[FileUploadSecondary] WHERE [FileUploadSecondaryID] = @FileUploadSecondaryID AND [UserID] = @UserID;";
-                cmd7.Parameters.AddWithValue("FileUploadSecondaryID", fileuploadsecondaryID);
-                cmd7.Parameters.AddWithValue("UserID", userid);
+                cmd7.CommandText = "DELETE FROM [dbo].[FileUploadSecondarySecret] WHERE [FileUploadSecondarySecretID] = @FileUploadSecondarySecretID;";
+                cmd7.Parameters.AddWithValue("FileUploadSecondarySecretID", fileuploadsecondarysecretID);
                 cmd7.Connection = connection;
                 connection.Open();
                 cmd7.ExecuteNonQuery();
                 connection.Close();
 
                 SqlCommand cmd8 = new SqlCommand();
-                cmd8.CommandText = "DELETE FROM [dbo].[FileUploadSecret] WHERE [FileUploadSecretID] = @FileUploadSecretID;";
-                cmd8.Parameters.AddWithValue("FileUploadSecretID", fileuploadsecretID);
+                cmd8.CommandText = "DELETE FROM [dbo].[Gallery] WHERE [GalleryID] = @galleryID;";
+                cmd8.Parameters.AddWithValue("GalleryID", gid);
                 cmd8.Connection = connection;
                 connection.Open();
                 cmd8.ExecuteNonQuery();
                 connection.Close();
-
-                SqlCommand cmd9 = new SqlCommand();
-                cmd9.CommandText = "DELETE FROM [dbo].[FileUploadSecondarySecret] WHERE [FileUploadSecondarySecretID] = @FileUploadSecondarySecretID;";
-                cmd9.Parameters.AddWithValue("FileUploadSecondarySecretID", fileuploadsecondarysecretID);
-                cmd9.Connection = connection;
-                connection.Open();
-                cmd9.ExecuteNonQuery();
-                connection.Close();
-
-                SqlCommand cmd10 = new SqlCommand();
-                cmd10.CommandText = "DELETE FROM [dbo].[Gallery] WHERE [GalleryID] = @galleryID;";
-                cmd10.Parameters.AddWithValue("GalleryID", gid);
-                cmd10.Connection = connection;
-                connection.Open();
-                cmd10.ExecuteNonQuery();
-                connection.Close();
             }
+            Response.Redirect(Request.RawUrl);
         }
 
         protected void CreateUpload_Click(object sender, EventArgs e)
