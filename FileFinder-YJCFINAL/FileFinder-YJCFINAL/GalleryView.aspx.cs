@@ -20,7 +20,7 @@ namespace FileFinder_YJCFINAL
         private static byte[] _salt = Encoding.ASCII.GetBytes("jasdh7834y8hfeur73rsharks214");
         //temp
         private string userid = "123";
-        private string gid = "24";
+        private string gid = "29";
 
         //Gallery Database var
         private string title;
@@ -219,7 +219,7 @@ namespace FileFinder_YJCFINAL
                     panel.HorizontalAlign = HorizontalAlign.Left;
 
                     //Head of review 
-                    panel.Controls.Add(new LiteralControl("<div class='row'>"));
+                    panel.Controls.Add(new LiteralControl("<div class='container'>"));
                     panel.Controls.Add(new LiteralControl("<div class=col-sm-1>"));
                     panel.Controls.Add(new LiteralControl("<div class='thumbnail'>"));
                     var img = new HtmlGenericControl("img");
@@ -230,22 +230,22 @@ namespace FileFinder_YJCFINAL
                     panel.Controls.Add(new LiteralControl("</div>")); //<!--/col-sm-1 div-->
 
                     //panel Body of review
-                    panel.Controls.Add(new LiteralControl("<div class='col-sm-6'>"));
-                    panel.Controls.Add(new LiteralControl("<div class='panel panel-default'>"));
+                    panel.Controls.Add(new LiteralControl("<div class='col-sm-5'>"));
+                    panel.Controls.Add(new LiteralControl("<div class='panel panel-info'>"));
                     panel.Controls.Add(new LiteralControl("<div class='panel-heading'>"));
                     HtmlGenericControl Label1 = new HtmlGenericControl("strong");
                     //Label1.Attributes.Add("class", "media-heading");
                     Label1.InnerText = "Monster";
                     panel.Controls.Add(Label1);
                     HtmlGenericControl Label2 = new HtmlGenericControl("span");
-                    Label2.InnerText = "posted "+ ReviewTimeStamp;
+                    Label2.InnerText = HttpUtility.HtmlEncode(" posted " + ReviewTimeStamp);
                     Label2.Attributes.Add("class","text-muted");
                     panel.Controls.Add(Label2);
                     panel.Controls.Add(new LiteralControl("</div>"));// <!-- /panel-heading -->
 
                     panel.Controls.Add(new LiteralControl("<div class='panel-body'>"));
                     HtmlGenericControl Label3 = new HtmlGenericControl("label");
-                    Label3.InnerText = ReviewContent;
+                    Label3.InnerText = HttpUtility.HtmlEncode(ReviewContent);
                     panel.Controls.Add(Label3);
 
                     panel.Controls.Add(new LiteralControl("</div>"));//<!--/panel body-->
@@ -256,13 +256,13 @@ namespace FileFinder_YJCFINAL
                     PlaceHolderReview.Controls.Add(panel);
                 }
 
-                DesignTitleLabel.Text = title;
+                DesignTitleLabel.Text = HttpUtility.HtmlEncode(title);
                 NameLabel.Text = "Blah Blah need to change";
-                Titlelabel2.Text = title;
-                PriceLabel.Text = "S$" + amount.ToString();
-                DescriptionLabel.Text = desc;
-                Label1.Text = title;
-                Label2.Text = filesizeMain + "KB";
+                Titlelabel2.Text = HttpUtility.HtmlEncode(title);
+                PriceLabel.Text = HttpUtility.HtmlEncode("S$" + amount.ToString());
+                DescriptionLabel.Text = HttpUtility.HtmlEncode(desc);
+                Label1.Text = HttpUtility.HtmlEncode(title);
+                Label2.Text = HttpUtility.HtmlEncode(filesizeMain + "KB");
 
                 //Image 
                 if (ImgMain!=null && ImgSec!=null)
@@ -396,7 +396,7 @@ namespace FileFinder_YJCFINAL
 
             //Head of review 
             panel.Controls.Add(new LiteralControl("<div class='row'>"));
-            panel.Controls.Add(new LiteralControl("<div class=col-sm-1>"));
+            panel.Controls.Add(new LiteralControl("<div class=col-sm-2>"));
             panel.Controls.Add(new LiteralControl("<div class='thumbnail'>"));
             var img = new HtmlGenericControl("img");
             img.Attributes.Add("class", "img-responsive user-photo");

@@ -187,6 +187,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Account\Web.config" />
+    <Content Include="ErrorPageCustom.aspx" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="GalleryView.aspx" />
     <Content Include="ImageShare.aspx" />
@@ -200,6 +201,7 @@
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="Scripts\jquery-3.1.1.intellisense.js" />
+    <Content Include="MyUploadsEdit.aspx" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-3.1.1.js" />
@@ -385,6 +387,13 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ErrorPageCustom.aspx.cs">
+      <DependentUpon>ErrorPageCustom.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ErrorPageCustom.aspx.designer.cs">
+      <DependentUpon>ErrorPageCustom.aspx</DependentUpon>
+    </Compile>
     <Compile Include="GalleryView.aspx.cs">
       <DependentUpon>GalleryView.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -409,6 +418,13 @@
     </Compile>
     <Compile Include="MyUploads.aspx.designer.cs">
       <DependentUpon>MyUploads.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MyUploadsEdit.aspx.cs">
+      <DependentUpon>MyUploadsEdit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyUploadsEdit.aspx.designer.cs">
+      <DependentUpon>MyUploadsEdit.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharingCreate.aspx.cs">

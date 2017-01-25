@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
@@ -23,12 +22,10 @@ namespace FileFinder_YJCFINAL
 
         //File Upload Database var
         private int fileuploadID;
-
+        private byte[] ImgDataMain;
         private int fileuploadsecretID;
         private int fileuploadsecondaryID;
         private int fileuploadsecondarysecretID;
-        private string filepathMain;
-        private string filepathSec;
 
         //temp
         private string userid = "123";
@@ -36,6 +33,7 @@ namespace FileFinder_YJCFINAL
         protected void Page_Load(object sender, EventArgs e)
         {
             List<int> GalleryIDList = new List<int>();
+            List<int> FileUploadIDList = new List<int>();
             using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
             {
                 SqlDataReader reader;
@@ -53,7 +51,7 @@ namespace FileFinder_YJCFINAL
                 connection.Close();
 
                 SqlCommand cmd2 = new SqlCommand();
-                cmd2.CommandText = "SELECT [GalleryID] FROM [dbo].[Gallery]";
+                cmd2.CommandText = "SELECT [GalleryID],[FileUploadID] FROM [dbo].[Gallery]";
                 cmd2.Connection = connection;
                 connection.Open();
                 cmd2.ExecuteNonQuery();
@@ -62,15 +60,17 @@ namespace FileFinder_YJCFINAL
                 while (reader.Read())
                 {
                     GalleryIDList.Add(reader.GetInt32(0));
+                    FileUploadIDList.Add(reader.GetInt32(1));
                 }
                 connection.Close();
 
                 for (int i = 0; i < noOfGallery; i++)
                 {
                     int GalleryID = GalleryIDList[i];
+                    int FileUploadID = FileUploadIDList[i];
 
                     SqlCommand cmd3 = new SqlCommand();
-                    cmd3.CommandText = "SELECT [DesignName],[Cost],[Description] FROM [dbo].[Gallery] WHERE [GalleryID]= @GalleryID AND [UserID] = @UserID;";
+                    cmd3.CommandText = "SELECT [DesignName] FROM [dbo].[Gallery] WHERE [GalleryID]= @GalleryID AND [UserID] = @UserID;";
                     cmd3.Parameters.AddWithValue("GalleryID", GalleryID);
                     cmd3.Parameters.AddWithValue("UserID", userid);
                     cmd3.Connection = connection;
@@ -81,8 +81,27 @@ namespace FileFinder_YJCFINAL
                     while (reader.Read())
                     {
                         title = reader.GetString(0);
-                        amount = reader.GetInt32(1);
-                        desc = reader.GetString(2);
+                        //amount = reader.GetInt32(1);
+                        //desc = reader.GetString(2);
+                    }
+                    connection.Close();
+
+                    SqlCommand cmd4 = new SqlCommand();
+                    cmd4.CommandText = "SELECT [ImgData] FROM [dbo].[FileUpload] WHERE [FileUploadID]= @FileUploadID AND [UserID] = @UserID;";
+                    cmd4.Parameters.AddWithValue("FileUploadID", FileUploadID);
+                    cmd4.Parameters.AddWithValue("UserID", userid);
+                    cmd4.Connection = connection;
+                    connection.Open();
+                    cmd4.ExecuteNonQuery();
+
+                    reader = cmd4.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        //Image
+                        long length = reader.GetBytes(0, 0, null, 0, 0);
+                        Byte[] buffer = new Byte[length];
+                        reader.GetBytes(0, 0, buffer, 0, (int)length);
+                        ImgDataMain = buffer;
                     }
                     connection.Close();
 
@@ -90,42 +109,23 @@ namespace FileFinder_YJCFINAL
                     panel.ID = "EventPanel" + i.ToString();//Remember must put the for loop int in here
                     panel.HorizontalAlign = HorizontalAlign.Left;
 
-                    //Head of panel
-                    panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    panel.Controls.Add(new LiteralControl("<div class='panel panel-info'>"));
-                    panel.Controls.Add(new LiteralControl("<div class='panel-heading'>"));
-                    var h2 = new HtmlGenericControl("h2");
-                    h2.Attributes.Add("class", "panel-title");
-                    h2.InnerHtml = title;
-                    panel.Controls.Add(h2);
-                    panel.Controls.Add(new LiteralControl("</div>"));
-
                     //panel Body
                     panel.Controls.Add(new LiteralControl("<div class='panel-body'>"));
                     panel.Controls.Add(new LiteralControl("<div class='row'>"));
 
                     //Buttons
-                    panel.Controls.Add(new LiteralControl("<div class='col-md-3'>"));
+                    panel.Controls.Add(new LiteralControl("<div class='col-md-6'>"));
 
-                    //Cancel Event button
-                    panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    Button b = new Button();
-                    b.Text = "Remove Design";
-                    b.CssClass = "btn btn-primary";
-                    b.Click += new EventHandler(b_Click);
-                    b.CommandArgument = GalleryID.ToString();
-                    panel.Controls.Add(b);
-                    panel.Controls.Add(new LiteralControl("</div>"));//row div
+                    var img = new HtmlGenericControl("img");
+                    img.Attributes.Add("class", "img-responsive user-photo");
 
-                    //View Details Button
-                    panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    Button b2 = new Button();
-                    b2.Text = "Edit Details";
-                    b2.CssClass = "btn btn-primary";
-                    //b2.Click += new EventHandler(viewdetails_click);
-                    //b2.CommandArgument = eventId.ToString();
-                    panel.Controls.Add(b2);
-                    panel.Controls.Add(new LiteralControl("</div>"));//row div
+                    string base64String = Convert.ToBase64String(ImgDataMain, 0, ImgDataMain.Length);
+                    img.Attributes.Add("src", "data:image/png;base64,"+base64String);
+                    panel.Controls.Add(img);
+
+                    panel.Controls.Add(new LiteralControl("</div>"));//col-md-3 div
+
+                    
 
                     //View Details Button
                     //panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
@@ -136,65 +136,55 @@ namespace FileFinder_YJCFINAL
                     //b2.CommandArgument = eventId.ToString();
                     //panel.Controls.Add(b2);
                     //panel.Controls.Add(new LiteralControl("</div>"));//row div
-                    panel.Controls.Add(new LiteralControl("</div>"));//col-md-3 div
 
-                    panel.Controls.Add(new LiteralControl("<div class='col-md-9'>"));
+                    
+
+                    panel.Controls.Add(new LiteralControl("<div class='col-md-6'>"));
 
                     //Design Name
                     panel.Controls.Add(new LiteralControl("<div class='row'>"));
                     panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
                     HtmlGenericControl label1 = new HtmlGenericControl("label");
-                    label1.Attributes.Add("class", "col-lg-2 control-label");
+                    label1.Attributes.Add("class", "col-lg-6 control-label");
                     label1.InnerText = "Design Name:";
                     panel.Controls.Add(label1);
                     label1.Controls.Add(new LiteralControl("</label>"));
                     Label l = new Label();
-                    l.CssClass = "col-lg-10 control-label";
-                    l.Text = title;
+                    l.CssClass = "col-lg-6 control-label";
+                    l.Text = HttpUtility.HtmlEncode(title);
                     panel.Controls.Add(l);
                     panel.Controls.Add(new LiteralControl("</div>"));//form group div
                     panel.Controls.Add(new LiteralControl("</div>"));//row div
 
-                    //Cost
                     panel.Controls.Add(new LiteralControl("<div class='row'>"));
+
+                    //Cancel Event button
                     panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    HtmlGenericControl label2 = new HtmlGenericControl("label");
-                    label2.Attributes.Add("class", "col-lg-2 control-label");
-                    label2.InnerText = "Cost:";
-                    label2.Controls.Add(new LiteralControl("</label>"));
-                    panel.Controls.Add(label2);
-                    Label l2 = new Label();
-                    l2.CssClass = "col-lg-10 control-label";
-                    l2.Text = "S$" + amount.ToString() + ".00";
-                    panel.Controls.Add(l2);
+                    Button b = new Button();
+                    b.Text = "Remove Design";
+                    b.CssClass = "btn btn-primary";
+                    b.Click += new EventHandler(b_Click);
+                    b.CommandArgument = GalleryID.ToString();
+                    panel.Controls.Add(b);
                     panel.Controls.Add(new LiteralControl("</div>"));//form group div
-                    panel.Controls.Add(new LiteralControl("</div>"));//row div
 
-                    //Description
-                    panel.Controls.Add(new LiteralControl("<div class='row'>"));
+                    //Edit Button
                     panel.Controls.Add(new LiteralControl("<div class='form-group'>"));
-                    HtmlGenericControl label3 = new HtmlGenericControl("label");
-                    label3.Attributes.Add("class", "col-lg-2 control-label");
-                    label3.InnerText = "Description:";
-                    label3.Controls.Add(new LiteralControl("</label>"));
-                    panel.Controls.Add(label3);
-                    Label l3 = new Label();
-                    l3.CssClass = "col-lg-10 control-label";
-                    l3.Text = desc;
-                    panel.Controls.Add(l3);
+                    Button b2 = new Button();
+                    b2.Text = "Edit Details";
+                    b2.CssClass = "btn btn-primary";
+                    //b2.Click += new EventHandler(viewdetails_click);
+                    //b2.CommandArgument = eventId.ToString();
+                    panel.Controls.Add(b2);
                     panel.Controls.Add(new LiteralControl("</div>"));//form group div
-                    panel.Controls.Add(new LiteralControl("</div>"));//row div
 
-                    panel.Controls.Add(new LiteralControl("</div>"));//col-md-9 div
+                    panel.Controls.Add(new LiteralControl("</div>"));//Row div
 
-                    panel.Controls.Add(new LiteralControl("<div class='col-md-4'>"));
-
-                    panel.Controls.Add(new LiteralControl("</div>"));//col-md-2 div
+                    panel.Controls.Add(new LiteralControl("</div>"));//col-md-3 div
 
                     panel.Controls.Add(new LiteralControl("</div>"));//row div
                     panel.Controls.Add(new LiteralControl("</div>"));//panel body div
-                    panel.Controls.Add(new LiteralControl("</div>"));//panel panel info div
-                    panel.Controls.Add(new LiteralControl("</div>"));//form group div
+                    panel.Controls.Add(new LiteralControl("<hr />"));
                     PLH.Controls.Add(panel);
                 }
             }

@@ -33,7 +33,10 @@ namespace FileFinder_YJCFINAL
         private string title;
         private int categoryID;
         private string categoryName;
-        private int amount;
+        private string amount;
+        private string DecryptDataKey;//{For gallery only}
+        private string EncryptDataKeyMain;//{For image Main}
+        private string EncryptDataKeySec;//{For image Sec}
 
         //Main upload var
         private string extensionMain;
@@ -141,7 +144,7 @@ namespace FileFinder_YJCFINAL
                 while (reader.Read())
                 {
                     title = reader.GetString(0);
-                    amount = reader.GetInt32(1);
+                    amount = reader.GetString(1);
                     categoryID = reader.GetInt32(2);
                 }
                 connection.Close();
@@ -159,11 +162,31 @@ namespace FileFinder_YJCFINAL
                     categoryName = reader.GetString(0);
                 }
                 connection.Close();
+
+                SqlCommand cmd3 = new SqlCommand();
+                cmd3.CommandText = "SELECT [SecretKey] FROM [dbo].[GallerySecret] WHERE [GalleryID]= @GalleryID;";
+                cmd3.Parameters.AddWithValue("GalleryID", galleryID);
+                cmd3.Connection = connection;
+                connection.Open();
+                cmd3.ExecuteNonQuery();
+
+                reader = cmd3.ExecuteReader();
+                while (reader.Read())
+                {
+                    DecryptDataKey = reader.GetString(0);
+               }
+                connection.Close();
             }
-            DesignTitleLabel.Text = Server.HtmlEncode(title);
-            CategoryLabel.Text = Server.HtmlEncode(categoryName);
-            CostLabel.Text = Server.HtmlEncode("$" + amount.ToString());
-            SellerLabel.Text = Server.HtmlEncode(userid);
+
+            title = Cryptography.DecryptOfData(title, DecryptDataKey);
+            categoryName = Cryptography.DecryptOfData(categoryName, DecryptDataKey);
+            amount = Cryptography.DecryptOfData(amount, DecryptDataKey);
+             
+
+            DesignTitleLabel.Text = HttpUtility.HtmlEncode(title);
+            CategoryLabel.Text = HttpUtility.HtmlEncode(categoryName);
+            CostLabel.Text = HttpUtility.HtmlEncode("$" + amount.ToString());
+            SellerLabel.Text = HttpUtility.HtmlEncode(userid);
         }
 
         protected void btnPreviewMain_Click(object sender, EventArgs e)
@@ -514,8 +537,19 @@ namespace FileFinder_YJCFINAL
 
             byte[] ImgMain = (byte[])ViewState["ImgMain"];
             byte[] ImgSec = (byte[])ViewState["ImgSec"];
-            //string pathToCheckMain = Path.Combine(Server.MapPath(fromRootToPhotosMain), uniqueFileNameMain + extensionMain);
-            //string pathToCheckSec = Path.Combine(Server.MapPath(fromRootToPhotosSec), uniqueFileNameMain + extensionSec);
+
+            //Encryption of Data for Main
+            EncryptDataKeyMain = Cryptography.GetRandomString();
+            extensionMain = Cryptography.EncryptionOfData(extensionMain, EncryptDataKeyMain);
+            filesizeMain = Cryptography.EncryptionOfData(filesizeMain, EncryptDataKeyMain);
+            medianameMain = Cryptography.EncryptionOfData(medianameMain, EncryptDataKeyMain);
+            secretTextKeyMain = Cryptography.EncryptionOfData(secretTextKeyMain, EncryptDataKeyMain);
+
+            //Encryption of Data for Sec
+            EncryptDataKeySec = Cryptography.GetRandomString();
+            extensionSec = Cryptography.EncryptionOfData(extensionSec, EncryptDataKeySec);
+            filesizeSec = Cryptography.EncryptionOfData(filesizeSec, EncryptDataKeySec);
+            secretTextKeySec = Cryptography.EncryptionOfData(secretTextKeySec, EncryptDataKeySec);
 
             if (ImgMain != null && ImgSec != null) 
             {
@@ -535,9 +569,10 @@ namespace FileFinder_YJCFINAL
                     connection.Close();
 
                     SqlCommand cmd2 = new SqlCommand();
-                    cmd2.CommandText = "INSERT INTO [dbo].[FileUploadSecret] ([EmbeddedSecretText],[EmbeddedSecretTextKey]) VALUES (@EmbeddedSecretText,@EmbeddedSecretTextKey);";
+                    cmd2.CommandText = "INSERT INTO [dbo].[FileUploadSecret] ([EmbeddedSecretText],[EmbeddedSecretTextKey],[SecretKey]) VALUES (@EmbeddedSecretText,@EmbeddedSecretTextKey,[SecretKey]);";
                     cmd2.Parameters.Add("@EmbeddedSecretText", SqlDbType.NVarChar).Value = encrytedSecretTextMain;
                     cmd2.Parameters.Add("@EmbeddedSecretTextKey", SqlDbType.NVarChar).Value = secretTextKeyMain;
+                    cmd2.Parameters.Add("@SecretKey", SqlDbType.NVarChar).Value = EncryptDataKeyMain;
                     cmd2.Connection = connection;
                     connection.Open();
                     cmd2.ExecuteNonQuery();
@@ -555,9 +590,10 @@ namespace FileFinder_YJCFINAL
                     connection.Close();
 
                     SqlCommand cmd4 = new SqlCommand();
-                    cmd4.CommandText = "INSERT INTO [dbo].[FileUploadSecondarySecret] ([EmbeddedSecretText],[EmbeddedSecretTextKey]) VALUES (@EmbeddedSecretText,@EmbeddedSecretTextKey);";
+                    cmd4.CommandText = "INSERT INTO [dbo].[FileUploadSecondarySecret] ([EmbeddedSecretText],[EmbeddedSecretTextKey],[SecretKey]) VALUES (@EmbeddedSecretText,@EmbeddedSecretTextKey,@SecretKey);";
                     cmd4.Parameters.Add("@EmbeddedSecretText", SqlDbType.NVarChar).Value = encrytedSecretTextSec;
                     cmd4.Parameters.Add("@EmbeddedSecretTextKey", SqlDbType.NVarChar).Value = secretTextKeySec;
+                    cmd4.Parameters.Add("@SecretKey", SqlDbType.NVarChar).Value = EncryptDataKeySec;
                     cmd4.Connection = connection;
                     connection.Open();
                     cmd4.ExecuteNonQuery();

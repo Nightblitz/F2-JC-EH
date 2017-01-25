@@ -1,4 +1,5 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="GalleryView.aspx.cs" Inherits="FileFinder_YJCFINAL.GalleryView" %>
+
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <style>
         .mask {
@@ -6,9 +7,43 @@
             height: 300px;
             background-image: url('../Images/Blank.gif');
             position: absolute;
-            top:134px;
-            opacity:0;
+            top: 134px;
+            opacity: 0;
         }
+
+        .thumbnail {
+            padding: 0px;
+        }
+
+        .panel {
+            position: relative;
+        }
+
+            .panel > .panel-heading:after, .panel > .panel-heading:before {
+                position: absolute;
+                top: 11px;
+                left: -16px;
+                right: 100%;
+                width: 0;
+                height: 0;
+                display: block;
+                content: " ";
+                border-color: transparent;
+                border-style: solid solid outset;
+                pointer-events: none;
+            }
+
+            .panel > .panel-heading:after {
+                border-width: 7px;
+                border-right-color: #f7f7f7;
+                margin-top: 1px;
+                margin-left: 2px;
+            }
+
+            .panel > .panel-heading:before {
+                border-right-color: #ddd;
+                border-width: 8px;
+            }
     </style>
     <hr />
     <div class="container">
@@ -25,46 +60,46 @@
                 <hr>
                 <!-- Preview Image -->
                 <div class="well">
-                    
-                        <asp:Image ID="SecImage" class="imagediv" Height="300px" Width="500" runat="server" />
-                <div class="mask"> 
-                       <img alt="" src="../Images/Blank.gif" />
-                </div>
-                <hr />
-                <div class="caption-full">
-                    <asp:Label ID="PriceLabel" Font-Size="Larger" class="pull-right" runat="server"></asp:Label>
-                    <asp:Label ID="Titlelabel2" Font-Size="Larger" runat="server"></asp:Label>
 
-                    <p>
-                        <asp:Label ID="DescriptionLabel" runat="server"></asp:Label>
-                </div>
-                <div class="ratings">
-                    <p>
-                        <span class="glyphicon glyphicon-star"></span>
-                        <span class="glyphicon glyphicon-star"></span>
-                        <span class="glyphicon glyphicon-star"></span>
-                        <span class="glyphicon glyphicon-star"></span>
-                        <span class="glyphicon glyphicon-star-empty"></span>
-                        4.0 stars
-                    </p>
-                </div>
+                    <asp:Image ID="SecImage" class="imagediv" Height="300px" Width="500" runat="server" />
+                    <div class="mask">
+                        <img alt="" src="../Images/Blank.gif" />
+                    </div>
+                    <hr />
+                    <div class="caption-full">
+                        <asp:Label ID="PriceLabel" Font-Size="Larger" class="pull-right" runat="server"></asp:Label>
+                        <asp:Label ID="Titlelabel2" Font-Size="Larger" runat="server"></asp:Label>
+
+                        <p>
+                            <asp:Label ID="DescriptionLabel" runat="server"></asp:Label>
+                    </div>
+                    <div class="ratings">
+                        <p>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            4.0 stars
+                        </p>
+                    </div>
                 </div>
 
-            <hr>
+                <hr>
                 <!-- Comments Form -->
                 <div class="well">
                     <h4>Leave a Review:</h4>
 
                     <div class="form-group">
-                        <asp:TextBox ID="ReviewTextArea" class="form-control" rows="3" runat="server"></asp:TextBox>
+                        <asp:TextBox ID="ReviewTextArea" class="form-control" Rows="3" runat="server"></asp:TextBox>
                     </div>
-                    <asp:Button ID="PostBtn" class="btn btn-primary"  runat="server" Text="Post" OnClick="PostBtn_Click" />
+                    <asp:Button ID="PostBtn" class="btn btn-primary" runat="server" Text="Post" OnClick="PostBtn_Click" />
                 </div>
 
                 <hr>
 
                 <!-- Posted Comments -->
-                
+
                 <!-- Comment -->
                 <asp:PlaceHolder ID="PlaceHolderReview" runat="server"></asp:PlaceHolder>
                 <%--<div class="media">
@@ -135,7 +170,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-lg-4 control-label" for="inputTitle">File Size:</label>
-                            <asp:Label  ID="Label2" runat="server"></asp:Label>
+                            <asp:Label ID="Label2" runat="server"></asp:Label>
                         </div>
                     </div>
                 </div>

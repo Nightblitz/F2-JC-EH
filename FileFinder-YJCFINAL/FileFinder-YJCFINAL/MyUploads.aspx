@@ -5,12 +5,37 @@
             <div class="col-lg-12">
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <h1>My Uploads
+                        <h1>
+                            My Account
                             <asp:Button ID="ToCreateUploadBtn" Style="float: right" class="btn btn-success" runat="server" Text="Upload Your Design" OnClick="CreateUpload_Click" />
-                        </h1>
-                    </div>
+                    </h1>
+                            </div>
                     <!-- .panel-body -->
-                    <asp:PlaceHolder ID="PLH" runat="server"></asp:PlaceHolder>
+                    <div class="col-md-6"">
+                        <div class="form-group">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h2 class="panel-title"> 
+                                        My Uploads
+                                    </h2>
+                                </div>
+                                 <asp:PlaceHolder ID="PLH" runat="server"></asp:PlaceHolder>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h2 class="panel-title"> 
+                                        My Purchases
+                                    </h2>
+                                </div>
+                                <asp:PlaceHolder ID="PLH2" runat="server"></asp:PlaceHolder>
+                            </div>
+                        </div>
+                    </div>
+                   </div>
                 </div>
                 <!-- /.panel -->
             </div>
@@ -50,5 +75,5 @@
                 </div>
             </div>
         </div>--%>
-    </div>
+    
 </asp:Content>

@@ -14,7 +14,8 @@ namespace FileFinder_YJCFINAL
         private string title;
         private string desc;
         private string category;
-        private int cost;
+        private string cost;
+        private string EncryptDataKey;
 
         //temp
         private string userid = "123";
@@ -33,7 +34,13 @@ namespace FileFinder_YJCFINAL
                 title = TitleTextBox.Text;
                 desc = DescriptionTextBox.Text;
                 category = CategoryDropDownList.SelectedItem.Text;
-                cost = Convert.ToInt32(CostTextBox.Text);
+                cost = CostTextBox.Text;
+
+                EncryptDataKey = Cryptography.GetRandomString();
+                title = Cryptography.EncryptionOfData(title, EncryptDataKey);
+                desc = Cryptography.EncryptionOfData(desc, EncryptDataKey);
+                category = Cryptography.EncryptionOfData(category, EncryptDataKey);
+                cost = Cryptography.EncryptionOfData(cost, EncryptDataKey);
 
                 using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
                 {
@@ -56,7 +63,7 @@ namespace FileFinder_YJCFINAL
                     cmd2.CommandText = "INSERT INTO [dbo].[Gallery] ([DesignName],[Description],[Cost],[CategoryID],[UserID]) VALUES (@DesignName,@Description,@Cost,@CategoryID,@UserID);";
                     cmd2.Parameters.Add("@DesignName", SqlDbType.NVarChar).Value = title;
                     cmd2.Parameters.Add("@Description", SqlDbType.NVarChar).Value = desc;
-                    cmd2.Parameters.Add("@Cost", SqlDbType.Int).Value = cost;
+                    cmd2.Parameters.Add("@Cost", SqlDbType.NVarChar).Value = cost;
                     cmd2.Parameters.Add("@CategoryID", SqlDbType.Int).Value = catID;
                     cmd2.Parameters.Add("@UserID", SqlDbType.NVarChar).Value = userid;
                     cmd2.Connection = connection;
@@ -77,6 +84,15 @@ namespace FileFinder_YJCFINAL
                     {
                         galleryID = reader.GetInt32(0);
                     }
+                    connection.Close();
+
+                    SqlCommand cmd4 = new SqlCommand();
+                    cmd4.CommandText = "INSERT INTO [dbo].[GallerySecret] ([SecretKey],[GalleryID]) VALUES (@SecretKey,@GalleryID);";
+                    cmd4.Parameters.Add("@SecretKey", SqlDbType.NVarChar).Value = EncryptDataKey;
+                    cmd4.Parameters.Add("@GalleryID", SqlDbType.NVarChar).Value = galleryID;
+                    cmd4.Connection = connection;
+                    connection.Open();
+                    cmd4.ExecuteNonQuery();
                     connection.Close();
                 }
                 string GID = HttpUtility.UrlEncode(Cryptography.EncryptUrl(galleryID.ToString().Trim()));
