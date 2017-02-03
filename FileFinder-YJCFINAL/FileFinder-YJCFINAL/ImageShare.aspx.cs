@@ -13,7 +13,6 @@ namespace FileFinder_YJCFINAL
 {
     public partial class ImageShare : System.Web.UI.Page
     {
-        private static byte[] _salt = Encoding.ASCII.GetBytes("jasdh7834y8hfeur73rsharks214");
 
         //Watemarking Image Var [Main]
         private string secretTextMain;
@@ -87,47 +86,11 @@ namespace FileFinder_YJCFINAL
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            string idFromPrevious = Cryptography.DecryptUrl(HttpUtility.UrlDecode(Request.QueryString["23rewwr343wd9jfsk23dmjd2q33c3g"]));
-            galleryID = Int32.Parse(idFromPrevious);
+            //string idFromPrevious = Cryptography.DecryptUrl(HttpUtility.UrlDecode(Request.QueryString["23rewwr343wd9jfsk23dmjd2q33c3g"]));
+            //galleryID = Int32.Parse(idFromPrevious);
+            galleryID =(int) Session["gid"];
 
             ImgSecDisplayPanel.Visible = false;
-            //SecretText Generate
-            //if (ViewState["StoredText"] == null)
-            //{
-            //    secretEncryptionKey = Cryptography.GetRandomString();
-            //}
-            //else
-            //{
-            //    secretEncryptionKey = (string)ViewState["StoredText"];
-            //}
-
-            //Random file name generate for Main
-            //if (ViewState["StoredIdMain"] == null)
-            //{
-            //    randomPicIDMain = Cryptography.GetRandomString();
-            //}
-            //else
-            //{
-            //    randomPicIDMain = (string)ViewState["StoredIdMain"];
-            //}
-            ////Random file name generate for Sec
-            //if (ViewState["StoredIdSec"] == null)
-            //{
-            //    randomPicIDSec = Cryptography.GetRandomString();
-            //}
-            //else
-            //{
-            //    randomPicIDSec = (string)ViewState["StoredIdSec"];
-            //}
-            ////Random file name generate for Video
-            //if (ViewState["StoredIdVid"] == null)
-            //{
-            //    randomVidID = Cryptography.GetRandomString();
-            //}
-            //else
-            //{
-            //    randomVidID = (string)ViewState["StoredIdVid"];
-            //}
 
             using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
             {
@@ -177,9 +140,8 @@ namespace FileFinder_YJCFINAL
                }
                 connection.Close();
             }
-
+            //Decryption of Data
             title = Cryptography.DecryptOfData(title, DecryptDataKey);
-            categoryName = Cryptography.DecryptOfData(categoryName, DecryptDataKey);
             amount = Cryptography.DecryptOfData(amount, DecryptDataKey);
              
 
@@ -208,51 +170,13 @@ namespace FileFinder_YJCFINAL
             {
                 try
                 {
-                    if (FileUploadMain.PostedFile.ContentType == "image/png")
+                    if (FileUploadMain.PostedFile.ContentType == "image/png" || FileUploadMain.PostedFile.ContentType == "image/jpg")
                     {
                         if (FileUploadMain.PostedFile.ContentLength < 1048576)
                         {
-                            //photoFolderMain = Path.Combine(fromRootToPhotosMain, randomPicIDMain);
-                            //ViewState["StoredIdMain"] = randomPicIDMain;
-
-                            //photoFolderSec = Path.Combine(fromRootToPhotosSec, randomPicIDSec);
-                            //ViewState["StoredIdSec"] = randomPicIDSec;
-                            //Main Create Dir
-                            //if (!Directory.Exists(photoFolderMain))
-                            //{
-                            //    Directory.CreateDirectory(photoFolderMain);
-                            //}
-                            ////Sec Create Dir
-                            //if (!Directory.Exists(photoFolderSec))
-                            //{
-                            //    Directory.CreateDirectory(photoFolderSec);
-                            //}
-                            //ViewState["PhotoFolderMain"] = photoFolderMain;
-                            //ViewState["PhotoFolderSec"] = photoFolderSec;
+                            
                             uniqueFileNameMain = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
                             ViewState["uniqueFileNameMain"] = uniqueFileNameMain;
-
-                            //Editing of main image
-                            //Stream strm = FileUploadMain.PostedFile.InputStream;
-                            //string targetPath;
-                            //using (var img = System.Drawing.Image.FromStream(strm))
-                            //{
-                            //    int newWidth = 240;
-                            //    int newHeight = 240;
-                            //    var thumbImg = new Bitmap(newWidth, newHeight);
-                            //    var thumbGraph = Graphics.FromImage(thumbImg);
-                            //    thumbGraph.CompositingQuality = CompositingQuality.HighQuality;
-                            //    thumbGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                            //    thumbGraph.SmoothingMode = SmoothingMode.HighQuality;
-                            //    var imgRectangle = new Rectangle(0, 0, newWidth, newHeight);
-                            //    thumbGraph.DrawImage(img, imgRectangle);
-
-                            //    targetPath = photoFolderMain + randomPicIDMain + "\\" + uniqueFileNameMain;
-                            //    using (Bitmap bmp = new Bitmap(thumbImg))
-                            //    {
-                            //        bmp.Save(targetPath ,bmp.RawFormat);
-                            //    }
-                            //}
 
                             //Embedding secretText into ImageMain
                             Stream strm = FileUploadMain.PostedFile.InputStream;
@@ -260,8 +184,8 @@ namespace FileFinder_YJCFINAL
 
                             secretTextMain = Cryptography.GetRandomString();
                             secretTextKeyMain = Cryptography.GetRandomString();
-                            encrytedSecretTextMain = EncryptStringAesIntoImage(secretTextMain, secretTextKeyMain);
-                            WatermarkedImageMain = Cryptography.embedText(encrytedSecretTextMain, WatermarkedImageMain);
+                            encrytedSecretTextMain = ImageStenography.EncryptStringAesSecretTextOfImage(secretTextMain, secretTextKeyMain);
+                            WatermarkedImageMain = ImageStenography.embedText(encrytedSecretTextMain, WatermarkedImageMain);
                             WatermarkedImageMain.Save(Server.MapPath(fromRootToPhotosMain + uniqueFileNameMain + extensionMain));
                             
                             ViewState["secretTextKeyMain"] = secretTextKeyMain;
@@ -274,7 +198,7 @@ namespace FileFinder_YJCFINAL
                                 case ClamScanResults.Clean:
                                     StatusLabelMain.CssClass = "label label-success";
                                     StatusLabelMain.Text = "Upload status: File uploaded!";
-                                    DisplayMainUploadedPhotos(imageToByteArray(WatermarkedImageMain));
+                                    DisplayMainUploadedPhotos((WatermarkedImageMain));
                                     DisplaySecondaryUploadedPhotos();
                                     ImgSecDisplayPanel.Visible = true;
                                     File.Delete(Server.MapPath(fromRootToPhotosMain + uniqueFileNameMain + extensionMain));
@@ -299,58 +223,7 @@ namespace FileFinder_YJCFINAL
                             StatusLabelMain.CssClass = "label label-danger";
                         }
                     }
-                    //else if (FileUploadMain.PostedFile.ContentType == "video/mp4")
-                    //{
-                    //    if (FileUploadMain.PostedFile.ContentLength < 52428800)
-                    //    {
-                    //        ViewState["StoredIdVid"] = randomVidID;
-                    //        videoFolder = Path.Combine(fromRootToVideo, randomVidID);
-
-                    //        //Vid Create Dir
-                    //        if (!Directory.Exists(videoFolder))
-                    //        {
-                    //            Directory.CreateDirectory(videoFolder);
-                    //        }
-                    //        ViewState["videoFolder"] = videoFolder;
-                    //        uniquefileNameVideo = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
-                    //        ViewState["uniquefileNameVideo"] = uniquefileNameVideo;
-                    //        FileUploadMain.SaveAs(Path.Combine(videoFolder, uniquefileNameVideo + extensionVid));
-
-                    //        var clam = new ClamClient("localhost", 3310);
-                    //        var scanResult = clam.ScanFileOnServer(Path.Combine(videoFolder, uniquefileNameVideo + extensionVid));
-
-                    //        switch (scanResult.Result)
-                    //        {
-                    //            case ClamScanResults.Clean:
-
-                    //                //VidZone.Attributes.Add("src", "../Videos/" + randomVidID + "/" + uniquefileNameVideo + extensionVid);
-                    //                //VidZone.Src =  + randomVidID + "/" + uniquefileNameVideo + extensionVid;
-                    //                //VidZone.Src = "http://localhost:2962/Videos/"+ randomVidID +"/"+uniquefileNameVideo + extensionVid;
-
-                    //                StatusLabelMain.CssClass = "label label-success";
-                    //                StatusLabelMain.Text = "Upload status: File uploaded!";
-
-                    //                break;
-
-                    //            case ClamScanResults.VirusDetected:
-                    //                StatusLabelMain.Text = "Upload status: Virus Found!!!!!";
-                    //                //File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
-                    //                StatusLabelMain.CssClass = "label label-danger";
-                    //                break;
-
-                    //            case ClamScanResults.Error:
-                    //                StatusLabelMain.Text = scanResult.RawResult;
-                    //                //File.Delete(Path.Combine(photoFolderMain, uniqueFileNameMain + extensionMain));
-                    //                StatusLabelMain.CssClass = "label label-danger";
-                    //                break;
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        StatusLabelMain.Text = "Upload status: Video Files have to be less than 50 MB!";
-                    //        StatusLabelMain.CssClass = "label label-danger";
-                    //    }
-                //}
+                   
                     else
                     {
                         StatusLabelMain.Text = "Upload status: File is not a supported file format!!!";
@@ -369,23 +242,24 @@ namespace FileFinder_YJCFINAL
             }
         }
 
-        public void DisplayMainUploadedPhotos(byte[] img)
+        public void DisplayMainUploadedPhotos(Bitmap img)
         {
-            Byte[] bytes = img;
-            string base64String = Convert.ToBase64String(bytes, 0, bytes.Length);
-            MainUploadedImage.ImageUrl = "data:image/png;base64," + base64String;
-            MainUploadedImage.Visible = true;
-            MainUploadedImage.Width = 350;
-            MainUploadedImage.Height = 250;
-            ViewState["ImgMain"] = bytes;
+            Bitmap WatermarkedImageMain = img;
+            using (MemoryStream ms= new MemoryStream())
+            {
+                //Save the Watermarked image to the MemoryStream.
+                WatermarkedImageMain.Save(ms, ImageFormat.Png);
+                Byte[] bytes = ms.ToArray();
+                string base64String = Convert.ToBase64String(bytes, 0, bytes.Length);
+                MainUploadedImage.ImageUrl = "data:image/png;base64," + base64String;
+                MainUploadedImage.Visible = true;
+                MainUploadedImage.Width = 350;
+                MainUploadedImage.Height = 250;
+                ViewState["ImgMain"] = bytes;
+            }
         }
 
-        public byte[] imageToByteArray(System.Drawing.Image imageIn)
-        {
-            MemoryStream ms = new MemoryStream();
-            imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            return ms.ToArray();
-        }
+       
 
         public void DisplaySecondaryUploadedPhotos()
         {
@@ -418,8 +292,8 @@ namespace FileFinder_YJCFINAL
                     Bitmap WatermarkedImageSec = bmp;
                     secretTextSec = Cryptography.GetRandomString();
                     secretTextKeySec = Cryptography.GetRandomString();
-                    encrytedSecretTextSec = EncryptStringAesIntoImage(secretTextSec, secretTextKeySec);
-                    WatermarkedImageSec = Cryptography.embedText(encrytedSecretTextSec, WatermarkedImageSec);
+                    encrytedSecretTextSec = ImageStenography.EncryptStringAesSecretTextOfImage(secretTextSec, secretTextKeySec);
+                    WatermarkedImageSec = ImageStenography.embedText(encrytedSecretTextSec, WatermarkedImageSec);
 
                     
                     ViewState["secretTextKeySec"] = secretTextKeySec;
@@ -429,11 +303,6 @@ namespace FileFinder_YJCFINAL
                     {
                         //Save the Watermarked image to the MemoryStream.
                         WatermarkedImageSec.Save(memoryStream, ImageFormat.Png);
-                        //Save image
-                        //uniqueFileNameSec = Path.ChangeExtension(FileUploadMain.FileName, DateTime.Now.Ticks.ToString());
-                        //ViewState["uniqueFileNameSec"] = uniqueFileNameSec;
-                        //string SecTargetPath = Server.MapPath(fromRootToPhotosSec+ uniqueFileNameSec + extensionSec);
-                        //WatermarkedImageSec.Save(SecTargetPath, WatermarkedImageSec.RawFormat);
 
                         //Displaying of image
                         Byte[] bytes = memoryStream.ToArray();
@@ -453,16 +322,10 @@ namespace FileFinder_YJCFINAL
 
         protected void btnDeleteMain_Click(object sender, EventArgs e)
         {
-            //photoFolderMain = (string)ViewState["PhotoFolderMain"];
-            //photoFolderSec = (string)ViewState["PhotoFolderSec"];
             uniqueFileNameMain = (string)ViewState["uniqueFileNameMain"];
             uniqueFileNameSec = (string)ViewState["uniqueFileNameSec"];
             extensionMain = (string)ViewState["extensionMain"];
             extensionSec = (string)ViewState["extensionSec"];
-            //string fileToDeleteMain = Path.Combine(fromRootToPhotosMain, uniqueFileNameMain + extensionMain);
-            //string fileToDeleteSec = Path.Combine(fromRootToPhotosSec, uniqueFileNameSec + extensionSec);
-            //File.Delete(fileToDeleteMain);
-            //File.Delete(fileToDeleteSec);
             MainUploadedImage.ImageUrl = null;
             MainUploadedImage.Visible = false;
             SecondaryUploadedImage.ImageUrl = null;
@@ -471,53 +334,9 @@ namespace FileFinder_YJCFINAL
             StatusLabelMain.CssClass = "label label-warning";
         }
 
-        //public void DisplayVideo()
-        //{
-        //    videoFolder = (string)ViewState["videoFolder"];
-        //    uniquefileNameVideo = (string)ViewState["uniquefileNameVideo"];
-        //    extensionVid = (string)ViewState["extensionVid"];
-        //    filesizeVid = (string)ViewState["filesizeMain"];
-        //    medianameVid = (string)ViewState["medianameMain"];
-
-        //    HttpPostedFile file = FileUploadMain.PostedFile;
-        //    //retrieve the HttpPostedFile object
-        //    buffer = new byte[file.ContentLength];
-        //    int bytesReaded = file.InputStream.Read(buffer, 0, FileUploadMain.PostedFile.ContentLength);
-        //    if (bytesReaded > 0)
-        //    {
-        //        try
-        //        {
-        //            using (BinaryReader br = new BinaryReader(FileUploadMain.PostedFile.InputStream))
-        //            {
-        //                byte[] vidData = br.ReadBytes((int)FileUploadMain.PostedFile.InputStream.Length);
-        //                using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
-        //                {
-        //                    SqlCommand cmd = new SqlCommand();
-        //                    cmd.CommandText = "INSERT INTO [dbo].[FileUploadVid] ([FileType],[FilePath],[FileSize],[MediaName],[UserID]) VALUES (@FileType,@FilePath,@FileSize,@MediaName,@Data,@UserID);";
-        //                    cmd.Parameters.Add("@FileType", SqlDbType.VarChar).Value = extensionVid;
-        //                    cmd.Parameters.Add("@FilePath", SqlDbType.VarChar).Value = Path.Combine(videoFolder, uniquefileNameVideo + extensionVid);
-        //                    cmd.Parameters.Add("@FileSize", SqlDbType.VarChar).Value = filesizeVid;
-        //                    cmd.Parameters.Add("@MediaName", SqlDbType.VarChar).Value = medianameVid;
-        //                    cmd.Parameters.Add("@UserID", SqlDbType.VarChar).Value = userid;
-        //                    cmd.Connection = connection;
-        //                    connection.Open();
-        //                    cmd.ExecuteNonQuery();
-        //                    connection.Close();
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            StatusLabelMain.Text = "Upload status: The file could not be uploaded. The following error occured: " + ex.Message;
-        //        }
-        //    }
-        //}
 
         protected void ShareBtn_Click(object sender, EventArgs e)
         {
-            //photoFolderMain = (string)ViewState["PhotoFolderMain"];
-            //photoFolderSec = (string)ViewState["PhotoFolderSec"];
-
             uniqueFileNameMain = (string)ViewState["uniqueFileNameMain"];
             uniqueFileNameSec = (string)ViewState["uniqueFileNameSec"];
 
@@ -544,12 +363,14 @@ namespace FileFinder_YJCFINAL
             filesizeMain = Cryptography.EncryptionOfData(filesizeMain, EncryptDataKeyMain);
             medianameMain = Cryptography.EncryptionOfData(medianameMain, EncryptDataKeyMain);
             secretTextKeyMain = Cryptography.EncryptionOfData(secretTextKeyMain, EncryptDataKeyMain);
+            encrytedSecretTextMain = Cryptography.EncryptionOfData(encrytedSecretTextMain, EncryptDataKeyMain);
 
             //Encryption of Data for Sec
             EncryptDataKeySec = Cryptography.GetRandomString();
             extensionSec = Cryptography.EncryptionOfData(extensionSec, EncryptDataKeySec);
             filesizeSec = Cryptography.EncryptionOfData(filesizeSec, EncryptDataKeySec);
             secretTextKeySec = Cryptography.EncryptionOfData(secretTextKeySec, EncryptDataKeySec);
+            encrytedSecretTextSec = Cryptography.EncryptionOfData(encrytedSecretTextSec, EncryptDataKeySec);
 
             if (ImgMain != null && ImgSec != null) 
             {
@@ -569,7 +390,7 @@ namespace FileFinder_YJCFINAL
                     connection.Close();
 
                     SqlCommand cmd2 = new SqlCommand();
-                    cmd2.CommandText = "INSERT INTO [dbo].[FileUploadSecret] ([EmbeddedSecretText],[EmbeddedSecretTextKey],[SecretKey]) VALUES (@EmbeddedSecretText,@EmbeddedSecretTextKey,[SecretKey]);";
+                    cmd2.CommandText = "INSERT INTO [dbo].[FileUploadSecret] ([EmbeddedSecretText],[EmbeddedSecretTextKey],[SecretKey]) VALUES (@EmbeddedSecretText,@EmbeddedSecretTextKey,@SecretKey);";
                     cmd2.Parameters.Add("@EmbeddedSecretText", SqlDbType.NVarChar).Value = encrytedSecretTextMain;
                     cmd2.Parameters.Add("@EmbeddedSecretTextKey", SqlDbType.NVarChar).Value = secretTextKeyMain;
                     cmd2.Parameters.Add("@SecretKey", SqlDbType.NVarChar).Value = EncryptDataKeyMain;
@@ -693,55 +514,6 @@ namespace FileFinder_YJCFINAL
             Response.Redirect("MyUploads.aspx");
         }
 
-        //Encryption for the secret text for image
-        public static string EncryptStringAesIntoImage(string plainText, string sharedSecret)
-        {
-            if (string.IsNullOrEmpty(plainText))
-                throw new ArgumentNullException("plainText");
-            if (string.IsNullOrEmpty(sharedSecret))
-                throw new ArgumentNullException("sharedSecret");
-
-            string outStr = null;                       // Encrypted string to return
-            RijndaelManaged aesAlg = null;              // RijndaelManaged object used to encrypt the data.
-
-            try
-            {
-                // generate the key from the shared secret and the salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(sharedSecret, _salt);
-
-                // Create a RijndaelManaged object
-                aesAlg = new RijndaelManaged();
-                aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);
-
-                // Create a decryptor to perform the stream transform.
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                // Create the streams used for encryption.
-                using (MemoryStream msEncrypt = new MemoryStream())
-                {
-                    // prepend the IV
-                    msEncrypt.Write(BitConverter.GetBytes(aesAlg.IV.Length), 0, sizeof(int));
-                    msEncrypt.Write(aesAlg.IV, 0, aesAlg.IV.Length);
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            //Write all data to the stream.
-                            swEncrypt.Write(plainText);
-                        }
-                    }
-                    outStr = Convert.ToBase64String(msEncrypt.ToArray());
-                }
-            }
-            finally
-            {
-                // Clear the RijndaelManaged object.
-                if (aesAlg != null)
-                    aesAlg.Clear();
-            }
-
-            // Return the encrypted bytes from the memory stream.
-            return outStr;
-        }
+       
     }
 }

@@ -39,7 +39,6 @@ namespace FileFinder_YJCFINAL
                 EncryptDataKey = Cryptography.GetRandomString();
                 title = Cryptography.EncryptionOfData(title, EncryptDataKey);
                 desc = Cryptography.EncryptionOfData(desc, EncryptDataKey);
-                category = Cryptography.EncryptionOfData(category, EncryptDataKey);
                 cost = Cryptography.EncryptionOfData(cost, EncryptDataKey);
 
                 using (SqlConnection connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["F2DB"].ConnectionString))
@@ -95,8 +94,10 @@ namespace FileFinder_YJCFINAL
                     cmd4.ExecuteNonQuery();
                     connection.Close();
                 }
-                string GID = HttpUtility.UrlEncode(Cryptography.EncryptUrl(galleryID.ToString().Trim()));
-                Response.Redirect(string.Format("ImageShare.aspx?23rewwr343wd9jfsk23dmjd2q33c3g={0}", GID));
+                //string GID = HttpUtility.UrlEncode(Cryptography.EncryptUrl(galleryID.ToString().Trim()));
+                //Response.Redirect(string.Format("ImageShare.aspx?23rewwr343wd9jfsk23dmjd2q33c3g={0}", GID));
+                Session["gid"] = galleryID;
+                Response.Redirect("ImageShare.aspx");
             }
 
         }

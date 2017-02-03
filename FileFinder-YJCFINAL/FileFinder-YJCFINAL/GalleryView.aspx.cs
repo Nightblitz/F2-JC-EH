@@ -20,29 +20,31 @@ namespace FileFinder_YJCFINAL
         private static byte[] _salt = Encoding.ASCII.GetBytes("jasdh7834y8hfeur73rsharks214");
         //temp
         private string userid = "123";
-        private string gid = "29";
+        private string gid = "45";
 
         //Gallery Database var
         private string title;
-        private int amount;
+        private string amount;
         private string desc;
+        private string DecryptDataKeyGallery;
 
         //UploadedImage [Main]
-        private byte[] ImgMain;
+        //private byte[] ImgMain;
 
         //UploadedImage Sec
         private byte[] ImgSec;
 
         //FileUploadMain Database var
         private int fileuploadID;
-        private string filetypeMain;
+        //private string filetypeMain;
         //private string filepathMain;
         
         private string filesizeMain;
         private string filenameMain;
         private int fileuploadsecretID;
-        private string embeddedsecrettextMain;
-        private string embeddedsecrettextkeyMain;
+        //private string embeddedsecrettextMain;
+        //private string embeddedsecrettextkeyMain;
+        private string DecryptDataKeyMain;
 
         //FileUploadSecondary Database  var
         private int fileuploadsecondaryID;
@@ -53,6 +55,7 @@ namespace FileFinder_YJCFINAL
         private string embeddedsecrettextSec;
         private string embeddedsecrettextkeySec;
         public string bg;
+        private string DecryptDataKeySec;
 
         //Review Database
         private string ReviewContent;
@@ -80,13 +83,13 @@ namespace FileFinder_YJCFINAL
                     title = reader.GetString(0);
                     fileuploadID = reader.GetInt32(1);
                     fileuploadsecondaryID = reader.GetInt32(2);
-                    amount = reader.GetInt32(3);
+                    amount = reader.GetString(3);
                     desc = reader.GetString(4);
                 }
                 connection.Close();
 
                 SqlCommand cmd2 = new SqlCommand();
-                cmd2.CommandText = "SELECT [ImgData],[FileType],[FileSize],[MediaName],[FileUploadSecretID] FROM [dbo].[FileUpload] WHERE [FileUploadID]= @FileUploadID AND [UserID] = @UserID;";
+                cmd2.CommandText = "SELECT [FileSize],[MediaName],[FileUploadSecretID] FROM [dbo].[FileUpload] WHERE [FileUploadID]= @FileUploadID AND [UserID] = @UserID;";
                 cmd2.Parameters.Add("@FileUploadID", SqlDbType.Int).Value = fileuploadID;
                 cmd2.Parameters.Add("@UserID", SqlDbType.NVarChar).Value = userid;
                 cmd2.Connection = connection;
@@ -97,15 +100,15 @@ namespace FileFinder_YJCFINAL
                 while (reader.Read())
                 {
                     //Image
-                    long length = reader.GetBytes(0, 0, null, 0, 0);
-                    Byte[] buffer = new Byte[length];
-                    reader.GetBytes(0, 0, buffer, 0, (int)length);
-                    ImgMain = buffer;
+                    //long length = reader.GetBytes(0, 0, null, 0, 0);
+                    //Byte[] buffer = new Byte[length];
+                    //reader.GetBytes(0, 0, buffer, 0, (int)length);
+                    //ImgMain = buffer;
 
-                    filetypeMain = reader.GetString(1);
-                    filesizeMain = reader.GetString(2);
-                    filenameMain = reader.GetString(3);
-                    fileuploadsecretID = reader.GetInt32(4);
+                    //filetypeMain = reader.GetString(1);
+                    filesizeMain = reader.GetString(0);
+                    filenameMain = reader.GetString(1);
+                    fileuploadsecretID = reader.GetInt32(2);
                 }
                 connection.Close();
 
@@ -132,7 +135,7 @@ namespace FileFinder_YJCFINAL
                 connection.Close();
 
                 SqlCommand cmd4 = new SqlCommand();
-                cmd4.CommandText = "SELECT [EmbeddedSecretText],[EmbeddedSecretTextKey] FROM [dbo].[FileUploadSecret] WHERE [FileUploadSecretID]= @FileUploadSecretID;";
+                cmd4.CommandText = "SELECT [SecretKey] FROM [dbo].[FileUploadSecret] WHERE [FileUploadSecretID]= @FileUploadSecretID;";
                 cmd4.Parameters.Add("@FileUploadSecretID", SqlDbType.Int).Value = fileuploadsecretID;
                 cmd4.Connection = connection;
                 connection.Open();
@@ -141,13 +144,12 @@ namespace FileFinder_YJCFINAL
                 reader = cmd4.ExecuteReader();
                 while (reader.Read())
                 {
-                    embeddedsecrettextMain = reader.GetString(0);
-                    embeddedsecrettextkeyMain = reader.GetString(1);
+                    DecryptDataKeyMain = reader.GetString(0);
                 }
                 connection.Close();
 
                 SqlCommand cmd5 = new SqlCommand();
-                cmd5.CommandText = "SELECT [EmbeddedSecretText],[EmbeddedSecretTextKey] FROM [dbo].[FileUploadSecondarySecret] WHERE [FileUploadSecondarySecretID]= @FileUploadSecondarySecretID;";
+                cmd5.CommandText = "SELECT [EmbeddedSecretText],[EmbeddedSecretTextKey],[SecretKey] FROM [dbo].[FileUploadSecondarySecret] WHERE [FileUploadSecondarySecretID]= @FileUploadSecondarySecretID;";
                 cmd5.Parameters.Add("@FileUploadSecondarySecretID", SqlDbType.Int).Value = fileuploadsecondarysecretID;
                 cmd5.Connection = connection;
                 connection.Open();
@@ -158,15 +160,12 @@ namespace FileFinder_YJCFINAL
                 {
                     embeddedsecrettextSec = reader.GetString(0);
                     embeddedsecrettextkeySec = reader.GetString(1);
+                    DecryptDataKeySec = reader.GetString(2);
                 }
                 connection.Close();
 
-
-                //Review Database
-                int noOfReview = 0;
-                List<int> ReviewIDList = new List<int>();
                 SqlCommand cmd6 = new SqlCommand();
-                cmd6.CommandText = "SELECT COUNT(*) FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
+                cmd6.CommandText = "SELECT [SecretKey] FROM [dbo].[GallerySecret] WHERE [GalleryID]= @GalleryID;";
                 cmd6.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
                 cmd6.Connection = connection;
                 connection.Open();
@@ -175,18 +174,36 @@ namespace FileFinder_YJCFINAL
                 reader = cmd6.ExecuteReader();
                 while (reader.Read())
                 {
-                    noOfReview = reader.GetInt32(0);
+                    DecryptDataKeyGallery = reader.GetString(0);
                 }
                 connection.Close();
 
+
+                //Review Database
+                int noOfReview = 0;
+                List<int> ReviewIDList = new List<int>();
                 SqlCommand cmd7 = new SqlCommand();
-                cmd7.CommandText = "SELECT [ReviewID] FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
+                cmd7.CommandText = "SELECT COUNT(*) FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
                 cmd7.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
                 cmd7.Connection = connection;
                 connection.Open();
                 cmd7.ExecuteNonQuery();
 
                 reader = cmd7.ExecuteReader();
+                while (reader.Read())
+                {
+                    noOfReview = reader.GetInt32(0);
+                }
+                connection.Close();
+
+                SqlCommand cmd8 = new SqlCommand();
+                cmd8.CommandText = "SELECT [ReviewID] FROM [dbo].[Review] WHERE [GalleryID] = @GalleryID;";
+                cmd8.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
+                cmd8.Connection = connection;
+                connection.Open();
+                cmd8.ExecuteNonQuery();
+
+                reader = cmd8.ExecuteReader();
                 while (reader.Read())
                 {
                     ReviewIDList.Add(reader.GetInt32(0));
@@ -197,15 +214,15 @@ namespace FileFinder_YJCFINAL
                 {
                     int ReviewID = ReviewIDList[i];
 
-                    SqlCommand cmd8 = new SqlCommand();
-                    cmd8.CommandText = "SELECT [Content],[UserID],[TimeStamp] FROM [dbo].[Review] WHERE [GalleryID]= @GalleryID AND [ReviewID] = @ReviewID;";
-                    cmd8.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
-                    cmd8.Parameters.Add("@ReviewID", SqlDbType.Int).Value = ReviewID;
-                    cmd8.Connection = connection;
+                    SqlCommand cmd9 = new SqlCommand();
+                    cmd9.CommandText = "SELECT [Content],[UserID],[TimeStamp] FROM [dbo].[Review] WHERE [GalleryID]= @GalleryID AND [ReviewID] = @ReviewID;";
+                    cmd9.Parameters.Add("@GalleryID", SqlDbType.Int).Value = gid;
+                    cmd9.Parameters.Add("@ReviewID", SqlDbType.Int).Value = ReviewID;
+                    cmd9.Connection = connection;
                     connection.Open();
                     cmd8.ExecuteNonQuery();
 
-                    reader = cmd8.ExecuteReader();
+                    reader = cmd9.ExecuteReader();
                     while (reader.Read())
                     {
                         ReviewContent = reader.GetString(0);
@@ -255,134 +272,61 @@ namespace FileFinder_YJCFINAL
 
                     PlaceHolderReview.Controls.Add(panel);
                 }
+                //Decryption of DATA
+                title = Cryptography.DecryptOfData(title, DecryptDataKeyGallery);
+                amount = Cryptography.DecryptOfData(amount, DecryptDataKeyGallery);
+                desc = Cryptography.DecryptOfData(desc, DecryptDataKeyGallery);
+
+                filesizeMain = Cryptography.DecryptOfData(filesizeMain,DecryptDataKeyMain);
+                filenameMain = Cryptography.DecryptOfData(filenameMain, DecryptDataKeyMain);
+
+                filetypeSec = Cryptography.DecryptOfData(filetypeSec,DecryptDataKeySec);
+                embeddedsecrettextSec = Cryptography.DecryptOfData(embeddedsecrettextSec, DecryptDataKeySec);
+                embeddedsecrettextkeySec = Cryptography.DecryptOfData(embeddedsecrettextkeySec, DecryptDataKeySec);
 
                 DesignTitleLabel.Text = HttpUtility.HtmlEncode(title);
                 NameLabel.Text = "Blah Blah need to change";
                 Titlelabel2.Text = HttpUtility.HtmlEncode(title);
-                PriceLabel.Text = HttpUtility.HtmlEncode("S$" + amount.ToString());
+                PriceLabel.Text = HttpUtility.HtmlEncode("S$" + amount);
                 DescriptionLabel.Text = HttpUtility.HtmlEncode(desc);
                 Label1.Text = HttpUtility.HtmlEncode(title);
                 Label2.Text = HttpUtility.HtmlEncode(filesizeMain + "KB");
 
                 //Image 
-                if (ImgMain!=null && ImgSec!=null)
+                if (ImgSec!=null)
                 {
-                    //imageMain = File.ReadAllBytes(filepathMain);
-                    //imageSec = File.ReadAllBytes(filepathSec);
-                    System.Drawing.Image picMain = byteArrayToImage(ImgMain);
-                    System.Drawing.Image picSec = byteArrayToImage(ImgSec);
-                    Bitmap bmpMain = new Bitmap(picMain);
+                   
+                    //System.Drawing.Image picMain = ImageStenography.byteArrayToImage(ImgMain);
+                    System.Drawing.Image picSec = ImageStenography.byteArrayToImage(ImgSec);
+                    //Bitmap bmpMain = new Bitmap(picMain);
                     Bitmap bmpSec = new Bitmap(picSec);
 
                     //Extraction of secret text
-                    string ExtractedTextMain = Cryptography.extractText(bmpMain);
-                    string ExtractedTextSec = Cryptography.extractText(bmpSec);
+                    //string ExtractedTextMain = ImageStenography.extractText(bmpMain);
+                    string ExtractedTextSec = ImageStenography.extractText(bmpSec);
 
                     //Decrytion of secret text
-                    string plainExtractedTextMain = DecryptImageAesIntoString(ExtractedTextMain, embeddedsecrettextkeyMain);
-                    string plainExtractedTextSec = DecryptImageAesIntoString(ExtractedTextSec, embeddedsecrettextkeySec);
-                    string originalPlainTextMain = DecryptImageAesIntoString(embeddedsecrettextMain, embeddedsecrettextkeyMain);
-                    string originalPlainTextSec = DecryptImageAesIntoString(embeddedsecrettextSec, embeddedsecrettextkeySec);
+                    //string plainExtractedTextMain = ImageStenography.DecryptImageAesIntoString(ExtractedTextMain, embeddedsecrettextkeyMain);
+                    string plainExtractedTextSec = ImageStenography.DecryptImageSecretTextAesIntoString(ExtractedTextSec, embeddedsecrettextkeySec);
+                    //string originalPlainTextMain = ImageStenography.DecryptImageAesIntoString(embeddedsecrettextMain, embeddedsecrettextkeyMain);
+                    string originalPlainTextSec = ImageStenography.DecryptImageSecretTextAesIntoString(embeddedsecrettextSec, embeddedsecrettextkeySec);
 
-                    if (originalPlainTextMain == plainExtractedTextMain && originalPlainTextSec == plainExtractedTextSec)
+                    if (originalPlainTextSec == plainExtractedTextSec)
                     {
-                        //Displaying of sec Image
-                        //string blank = @"C:\Users\User\Source\Repos\F2\F2\Images\Blank.gif";
+
                         using (MemoryStream ms = new MemoryStream())
                         {
-                            //Graphics gra = Graphics.FromImage(bmpSec);
-                            //Bitmap blankImg = new Bitmap(blank);
-                            //blankImg = new Bitmap(blankImg, 1000, 1000);
-                            //blankImg.MakeTransparent();
-                            //gra.DrawImage(blankImg, new Point(0, 0));
-
-
                             bmpSec.Save(ms, ImageFormat.Png);
                             byte[] byteImageSec = ms.ToArray();
                             string base64StringImageSec = Convert.ToBase64String(byteImageSec);
                             SecImage.ImageUrl = "data:image/png;base64," + base64StringImageSec;
-                            //SecImage.Style["background:url"] = "data:image/png;base64," + base64StringImageSec;
-                            //SecImage.Style.Add("background-image", "" + returncolor + "");
                         }
                     }
                 }
 
             }
         }
-        //Decryption for the secet text in image
-        public static string DecryptImageAesIntoString(string cipherText, string sharedSecret)
-        {
-            if (string.IsNullOrEmpty(cipherText))
-                throw new ArgumentNullException("cipherText");
-            if (string.IsNullOrEmpty(sharedSecret))
-                throw new ArgumentNullException("sharedSecret");
-
-            // Declare the RijndaelManaged object
-            // used to decrypt the data.
-            RijndaelManaged aesAlg = null;
-
-            // Declare the string used to hold
-            // the decrypted text.
-            string plaintext = null;
-
-            try
-            {
-                // generate the key from the shared secret and the salt
-                Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(sharedSecret, _salt);
-
-                // Create the streams used for decryption.
-                byte[] bytes = Convert.FromBase64String(cipherText);
-                using (MemoryStream msDecrypt = new MemoryStream(bytes))
-                {
-                    // Create a RijndaelManaged object
-                    // with the specified key and IV.
-                    aesAlg = new RijndaelManaged();
-                    aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);
-                    // Get the initialization vector from the encrypted stream
-                    aesAlg.IV = ReadByteArray(msDecrypt);
-                    // Create a decrytor to perform the stream transform.
-                    ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-
-                            // Read the decrypted bytes from the decrypting stream
-                            // and place them in a string.
-                            plaintext = srDecrypt.ReadToEnd();
-                    }
-                }
-            }
-            finally
-            {
-                // Clear the RijndaelManaged object.
-                if (aesAlg != null)
-                    aesAlg.Clear();
-            }
-
-            return plaintext;
-        }
-        private static byte[] ReadByteArray(Stream s)
-        {
-            byte[] rawLength = new byte[sizeof(int)];
-            if (s.Read(rawLength, 0, rawLength.Length) != rawLength.Length)
-            {
-                throw new SystemException("Stream did not contain properly formatted byte array");
-            }
-
-            byte[] buffer = new byte[BitConverter.ToInt32(rawLength, 0)];
-            if (s.Read(buffer, 0, buffer.Length) != buffer.Length)
-            {
-                throw new SystemException("Did not read byte array properly");
-            }
-
-            return buffer;
-        }
-        public System.Drawing.Image byteArrayToImage(byte[] byteArrayIn)
-        {
-            MemoryStream ms = new MemoryStream(byteArrayIn);
-            System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms);
-            return returnImage;
-        }
+  
 
         protected void Download_PurcahseBtn_Click(object sender, EventArgs e)
         {

@@ -24,7 +24,7 @@
 
         <div class="form-group">
             <label for="inputDescription">Design Description</label>
-            <asp:TextBox ID="DescriptionTextBox" MaxLength="500" TextMode="multiline" Columns="20" Rows="3" class="form-control" placeholder="This is an awesome design!!" runat="server"></asp:TextBox>
+            <asp:TextBox ID="DescriptionTextBox" MaxLength="500" TextMode="multiline" Columns="20" Rows="4" class="form-control" placeholder="This is an awesome design!!" runat="server"></asp:TextBox>
             <asp:RequiredFieldValidator
                 ID="RequiredFieldValidator2"
                 runat="server"
@@ -34,7 +34,7 @@
             </asp:RequiredFieldValidator>
             <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server"
                 ControlToValidate="DescriptionTextBox"
-                ValidationExpression="^[a-zA-Z'.\s]{1,500}$"
+                ValidationExpression="^[a-zA-Z0-9'.,--&\s]{1,500}$"
                 ErrorMessage="Invalid Description"
                  CssClass="text-danger">
             </asp:RegularExpressionValidator>
