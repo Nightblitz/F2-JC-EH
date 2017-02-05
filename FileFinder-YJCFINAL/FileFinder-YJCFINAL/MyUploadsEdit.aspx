@@ -2,7 +2,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <hr />
     <fieldset>
-        <legend>Edit Your Product</legend>
+        <legend>Edit Your Description</legend>
         <div class="form-group">
             <label for="inputTitle">Product Title</label>
             <asp:TextBox ID="TitleTextBox" maxlength="20" class="form-control" placeholder="Elephants" runat="server"></asp:TextBox>
@@ -15,7 +15,7 @@
             </asp:RequiredFieldValidator>
             <asp:RegularExpressionValidator ID="TitleRegex" runat="server"
                 ControlToValidate="TitleTextBox"
-                ValidationExpression="^[a-zA-Z'.\s]{1,20}$"
+                ValidationExpression="^[a-zA-Z0-9\s]{1,20}$"
                 ErrorMessage="Invalid Title"
                  CssClass="text-danger">
             </asp:RegularExpressionValidator>
@@ -33,8 +33,8 @@
             </asp:RequiredFieldValidator>
             <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server"
                 ControlToValidate="DescriptionTextBox"
-                ValidationExpression="^[a-zA-Z'.\s]{1,1000}$"
-                ErrorMessage="Invalid Description"
+                ValidationExpression="^[a-zA-Z0-9'.,--&\s]{1,500}$"
+                ErrorMessage="Invalid Description(There is UNWANTED character written)"
                  CssClass="text-danger">
             </asp:RegularExpressionValidator>
         </div>

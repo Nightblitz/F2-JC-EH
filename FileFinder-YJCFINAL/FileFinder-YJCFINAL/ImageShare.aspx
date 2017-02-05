@@ -12,11 +12,11 @@
                     <div class="panel-body">
                         <div class="col-xs-8 col-sm-6">
                             <div class="form-group">
-                                <h2>Things to remember:</h2>
+                                <h2>Take Note:</h2>
                                 <ul>
-                                    <li>We accept only common file tpes like Png </li>
+                                    <li>We accept only common file types:Png,Jpg etc. </li>
                                     <li>Only 1 file is allowed to be uploaded</li>
-                                    <li>5MB is the maximum total file size</li>
+                                    <li>1MB is the maximum total file size</li>
                                 </ul>
                             </div>
                         </div>
@@ -69,8 +69,6 @@
                                 <asp:Button ID="DeleteBtnMain" Style="margin: 5px;" class="btn btn-danger" Text="Delete" runat="server" OnClick="btnDeleteMain_Click" />
                                 <div class="form-group">
                                     <asp:Image ID="MainUploadedImage" BorderColor="Black" BorderStyle="Solid" runat="server" />
-                                    <%-- <video id="VidZone" runat="server" width="320" height="240" autoplay>
-                                    </video>--%>
                                 </div>
                                 <div class="row">
                                     <asp:Label ID="StatusLabelMain" Style="font-size: medium" runat="server"></asp:Label>

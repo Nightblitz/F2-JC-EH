@@ -16,7 +16,7 @@
             </asp:RequiredFieldValidator>
             <asp:RegularExpressionValidator ID="TitleRegex" runat="server"
                 ControlToValidate="TitleTextBox"
-                ValidationExpression="^[a-zA-Z'.\s]{1,20}$"
+                ValidationExpression="^[a-zA-Z0-9\s]{1,20}$"
                 ErrorMessage="Invalid Title"
                  CssClass="text-danger">
             </asp:RegularExpressionValidator>
@@ -35,7 +35,7 @@
             <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server"
                 ControlToValidate="DescriptionTextBox"
                 ValidationExpression="^[a-zA-Z0-9'.,--&\s]{1,500}$"
-                ErrorMessage="Invalid Description"
+                ErrorMessage="Invalid Description(Forbidden Character Detected)"
                  CssClass="text-danger">
             </asp:RegularExpressionValidator>
         </div>

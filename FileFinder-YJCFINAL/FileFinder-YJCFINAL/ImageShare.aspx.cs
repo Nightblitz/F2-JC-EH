@@ -86,8 +86,6 @@ namespace FileFinder_YJCFINAL
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //string idFromPrevious = Cryptography.DecryptUrl(HttpUtility.UrlDecode(Request.QueryString["23rewwr343wd9jfsk23dmjd2q33c3g"]));
-            //galleryID = Int32.Parse(idFromPrevious);
             galleryID =(int) Session["gid"];
 
             ImgSecDisplayPanel.Visible = false;
@@ -162,10 +160,8 @@ namespace FileFinder_YJCFINAL
 
             extensionMain = Path.GetExtension(FileUploadMain.FileName);
             extensionSec = Path.GetExtension(FileUploadMain.FileName);
-            //extensionVid = Path.GetExtension(FileUploadMain.FileName);
             ViewState["extensionMain"] = extensionMain;
             ViewState["extensionSec"] = extensionSec;
-            //ViewState["extensionVid"] = extensionVid;
             if (FileUploadMain.HasFile)
             {
                 try

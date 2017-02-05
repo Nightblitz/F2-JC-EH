@@ -20,7 +20,7 @@ namespace FileFinder_YJCFINAL
         private static byte[] _salt = Encoding.ASCII.GetBytes("jasdh7834y8hfeur73rsharks214");
         //temp
         private string userid = "123";
-        private string gid = "45";
+        private string gid = "51";
 
         //Gallery Database var
         private string title;
@@ -99,13 +99,6 @@ namespace FileFinder_YJCFINAL
                 reader = cmd2.ExecuteReader();
                 while (reader.Read())
                 {
-                    //Image
-                    //long length = reader.GetBytes(0, 0, null, 0, 0);
-                    //Byte[] buffer = new Byte[length];
-                    //reader.GetBytes(0, 0, buffer, 0, (int)length);
-                    //ImgMain = buffer;
-
-                    //filetypeMain = reader.GetString(1);
                     filesizeMain = reader.GetString(0);
                     filenameMain = reader.GetString(1);
                     fileuploadsecretID = reader.GetInt32(2);
@@ -252,7 +245,7 @@ namespace FileFinder_YJCFINAL
                     panel.Controls.Add(new LiteralControl("<div class='panel-heading'>"));
                     HtmlGenericControl Label1 = new HtmlGenericControl("strong");
                     //Label1.Attributes.Add("class", "media-heading");
-                    Label1.InnerText = "Monster";
+                    Label1.InnerText = "Monster ";
                     panel.Controls.Add(Label1);
                     HtmlGenericControl Label2 = new HtmlGenericControl("span");
                     Label2.InnerText = HttpUtility.HtmlEncode(" posted " + ReviewTimeStamp);

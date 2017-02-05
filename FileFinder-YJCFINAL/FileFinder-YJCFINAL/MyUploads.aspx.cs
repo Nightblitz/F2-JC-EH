@@ -240,8 +240,8 @@ namespace FileFinder_YJCFINAL
                             Button b2 = new Button();
                             b2.Text = "Edit Details";
                             b2.CssClass = "btn btn-primary";
-                            //b2.Click += new EventHandler(viewdetails_click);
-                            //b2.CommandArgument = eventId.ToString();
+                            b2.Click += new EventHandler(editdetails_click);
+                            b2.CommandArgument = GalleryID.ToString();
                             panel.Controls.Add(b2);
                             panel.Controls.Add(new LiteralControl("</div>"));//form group div
 
@@ -414,6 +414,15 @@ namespace FileFinder_YJCFINAL
                 //    }
                 //}
             }
+        }
+
+        private void editdetails_click(object sender, EventArgs e)
+        {
+            Button button = (Button)sender;
+            int id = Convert.ToInt32(button.CommandArgument);
+
+            Session["GalleryID"] = id;
+            Response.Redirect("MyUploadsEdit.aspx");
         }
 
         private void download_Click(object sender, EventArgs e)
